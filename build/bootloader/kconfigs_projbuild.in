@@ -1,3 +1,0 @@
-source "/home/valery/esp-idf/components/bootloader/Kconfig.projbuild"
-source "/home/valery/esp-idf/components/esptool_py/Kconfig.projbuild"
-source "/home/valery/esp-idf/components/partition_table/Kconfig.projbuild"
