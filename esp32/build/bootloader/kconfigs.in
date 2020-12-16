@@ -1,5 +1,0 @@
-source "/home/valery/esp-idf/components/efuse/Kconfig"
-source "/home/valery/esp-idf/components/esp32/Kconfig"
-source "/home/valery/esp-idf/components/esp_common/Kconfig"
-source "/home/valery/esp-idf/components/log/Kconfig"
-source "/home/valery/esp-idf/components/spi_flash/Kconfig"
