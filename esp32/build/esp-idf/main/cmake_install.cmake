@@ -1,4 +1,4 @@
-# Install script for directory: /home/valery/Projects/coilwinder_esp32/main
+# Install script for directory: /home/valery/Projects/coilwinder_esp32/esp32/main
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

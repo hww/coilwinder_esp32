@@ -1,8 +1,8 @@
 {
     "project_name":       "bootloader",
     "project_path":       "/home/valery/esp-idf/components/bootloader/subproject",
-    "build_dir":          "/home/valery/Projects/coilwinder_esp32/build/bootloader",
-    "config_file":        "/home/valery/Projects/coilwinder_esp32/sdkconfig",
+    "build_dir":          "/home/valery/Projects/coilwinder_esp32/esp32/build/bootloader",
+    "config_file":        "/home/valery/Projects/coilwinder_esp32/esp32/sdkconfig",
     "config_defaults":    "",
     "app_elf":            "bootloader.elf",
     "app_bin":            "bootloader.bin",

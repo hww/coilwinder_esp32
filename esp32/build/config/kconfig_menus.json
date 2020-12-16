@@ -14328,6 +14328,216 @@
                 "id": "component-config-supplicant",
                 "title": "Supplicant",
                 "type": "menu"
+            },
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": "SSD1306_ENABLE_DEFAULT_I2C_INTERFACE",
+                                "help": "Default i2c interface speed in Hz",
+                                "id": "SSD1306_DEFAULT_I2C_SPEED",
+                                "name": "SSD1306_DEFAULT_I2C_SPEED",
+                                "range": null,
+                                "title": "Bus speed for i2c master",
+                                "type": "int"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "SSD1306_ENABLE_DEFAULT_I2C_INTERFACE",
+                                "help": null,
+                                "id": "SSD1306_DEFAULT_I2C_PORT_NUMBER",
+                                "name": "SSD1306_DEFAULT_I2C_PORT_NUMBER",
+                                "range": null,
+                                "title": "I2C port number to use",
+                                "type": "int"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "SSD1306_ENABLE_DEFAULT_I2C_INTERFACE",
+                                "help": null,
+                                "id": "SSD1306_DEFAULT_I2C_SCL_PIN",
+                                "name": "SSD1306_DEFAULT_I2C_SCL_PIN",
+                                "range": null,
+                                "title": "Default SCL pin number",
+                                "type": "int"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "SSD1306_ENABLE_DEFAULT_I2C_INTERFACE",
+                                "help": null,
+                                "id": "SSD1306_DEFAULT_I2C_SDA_PIN",
+                                "name": "SSD1306_DEFAULT_I2C_SDA_PIN",
+                                "range": null,
+                                "title": "Default SDA pin number",
+                                "type": "int"
+                            }
+                        ],
+                        "depends_on": null,
+                        "help": "Provides initialization code for both the i2c bus and i2c display device.",
+                        "id": "SSD1306_ENABLE_DEFAULT_I2C_INTERFACE",
+                        "name": "SSD1306_ENABLE_DEFAULT_I2C_INTERFACE",
+                        "range": null,
+                        "title": "Enable default i2c master interface code",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": "SSD1306_ENABLE_DEFAULT_SPI_INTERFACE",
+                                "help": null,
+                                "id": "SSD1306_DEFAULT_SPI_HOST",
+                                "name": "SSD1306_DEFAULT_SPI_HOST",
+                                "range": null,
+                                "title": null,
+                                "type": "int"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": "<choice>",
+                                        "help": null,
+                                        "id": "SSD1306_USE_HSPI_HOST",
+                                        "name": "SSD1306_USE_HSPI_HOST",
+                                        "range": null,
+                                        "title": "HSPI",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": "<choice>",
+                                        "help": null,
+                                        "id": "SSD1306_USE_VSPI_HOST",
+                                        "name": "SSD1306_USE_VSPI_HOST",
+                                        "range": null,
+                                        "title": "VSPI",
+                                        "type": "bool"
+                                    }
+                                ],
+                                "depends_on": "SSD1306_ENABLE_DEFAULT_SPI_INTERFACE",
+                                "help": null,
+                                "id": "component-config-tarablessd1306-enable-default-spi-interface-default-spi-host",
+                                "name": null,
+                                "title": "Default SPI host",
+                                "type": "choice"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "SSD1306_ENABLE_DEFAULT_SPI_INTERFACE",
+                                "help": null,
+                                "id": "SSD1306_DEFAULT_SPI_FREQUENCY",
+                                "name": "SSD1306_DEFAULT_SPI_FREQUENCY",
+                                "range": null,
+                                "title": "Default frequency for SPI attached display",
+                                "type": "int"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "SSD1306_ENABLE_DEFAULT_SPI_INTERFACE",
+                                "help": null,
+                                "id": "SSD1306_DEFAULT_SPI_MOSI_PIN",
+                                "name": "SSD1306_DEFAULT_SPI_MOSI_PIN",
+                                "range": null,
+                                "title": "Default MOSI pin number",
+                                "type": "int"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "SSD1306_ENABLE_DEFAULT_SPI_INTERFACE",
+                                "help": null,
+                                "id": "SSD1306_DEFAULT_SPI_SCLK_PIN",
+                                "name": "SSD1306_DEFAULT_SPI_SCLK_PIN",
+                                "range": null,
+                                "title": "Default SCLK pin number",
+                                "type": "int"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "SSD1306_ENABLE_DEFAULT_SPI_INTERFACE",
+                                "help": null,
+                                "id": "SSD1306_DEFAULT_SPI_DC_PIN",
+                                "name": "SSD1306_DEFAULT_SPI_DC_PIN",
+                                "range": null,
+                                "title": "Default DC pin number",
+                                "type": "int"
+                            }
+                        ],
+                        "depends_on": null,
+                        "help": "Provides initialization code for both the i2c device and spi attached display.",
+                        "id": "SSD1306_ENABLE_DEFAULT_SPI_INTERFACE",
+                        "name": "SSD1306_ENABLE_DEFAULT_SPI_INTERFACE",
+                        "range": null,
+                        "title": "Enable default SPI interface",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": null,
+                        "help": null,
+                        "id": "SSD1306_ERROR_ABORT",
+                        "name": "SSD1306_ERROR_ABORT",
+                        "range": null,
+                        "title": "Call abort() on all errors",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": null,
+                        "help": null,
+                        "id": "SSD1306_CLIPDEBUG",
+                        "name": "SSD1306_CLIPDEBUG",
+                        "range": null,
+                        "title": null,
+                        "type": "int"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": "<choice>",
+                                "help": "Drawing operations clip silently.",
+                                "id": "CLIPDEBUG_NONE",
+                                "name": "CLIPDEBUG_NONE",
+                                "range": null,
+                                "title": "None",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "<choice>",
+                                "help": "If a drawing operation is clipped a warning is written to the console.",
+                                "id": "CLIPDEBUG_WARNING",
+                                "name": "CLIPDEBUG_WARNING",
+                                "range": null,
+                                "title": "Warning",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "<choice>",
+                                "help": "If a drawing operation is clipped an error is written to the console along with an abort.",
+                                "id": "CLIPDEBUG_ERROR",
+                                "name": "CLIPDEBUG_ERROR",
+                                "range": null,
+                                "title": "Error",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": null,
+                        "help": null,
+                        "id": "component-config-tarablessd1306-clipping-debug-level",
+                        "name": null,
+                        "title": "Clipping debug level",
+                        "type": "choice"
+                    }
+                ],
+                "depends_on": null,
+                "id": "component-config-tarablessd1306",
+                "title": "TarableSSD1306",
+                "type": "menu"
             }
         ],
         "depends_on": null,

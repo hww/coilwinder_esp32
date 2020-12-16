@@ -39,8 +39,8 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/home/valery/Projects/coilwinder_esp32/build/esp-idf/mbedtls/mbedtls/library/cmake_install.cmake")
-  include("/home/valery/Projects/coilwinder_esp32/build/esp-idf/mbedtls/mbedtls/include/cmake_install.cmake")
+  include("/home/valery/Projects/coilwinder_esp32/esp32/build/esp-idf/mbedtls/mbedtls/library/cmake_install.cmake")
+  include("/home/valery/Projects/coilwinder_esp32/esp32/build/esp-idf/mbedtls/mbedtls/include/cmake_install.cmake")
 
 endif()
 

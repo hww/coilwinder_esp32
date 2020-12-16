@@ -29,10 +29,10 @@
 
 #include <sys/time.h>
 
-#include <rom/ets_sys.h>
+#include <esp32/rom/ets_sys.h>
 
 #include <esp_event.h>
-#include <esp_event_loop.h>
+#include <esp_event.h>
 #include <esp_log.h>
 #include <esp_system.h>
 #include <esp_wifi.h>
@@ -148,7 +148,9 @@ void pwmInit()
 
     ledc_timer_config_t ledc_timer = {};
     ledc_timer.speed_mode = LEDC_HIGH_SPEED_MODE;
-    ledc_timer.bit_num = LEDC_TIMER_10_BIT;
+    // Deprecated!
+    //ledc_timer.bit_num = LEDC_TIMER_10_BIT;
+    ledc_timer.duty_resolution = LEDC_TIMER_10_BIT;
     ledc_timer.timer_num = LEDC_TIMER_2;
     ledc_timer.freq_hz = 500;
 
@@ -171,28 +173,28 @@ void pwmSet(uint32_t duty)
 
 
 int createAndBindSocket() {
-    int socket, ret;
+    int sock, ret;
 
-    socket = socket(AF_INET, SOCK_DGRAM, 0);
-    if (socket < 0) {
+    sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sock < 0) {
         std::cout << "Failed to create UDP socket!" << std::endl;
         return -1;
     }
-    std::cout << "UDP socket created: " << socket << ", bind..." << std::endl;
+    std::cout << "UDP socket created: " << sock << ", bind..." << std::endl;
 
     struct sockaddr_in sock_addr;
     memset(&sock_addr, 0, sizeof(sock_addr));
     sock_addr.sin_family = AF_INET;
     sock_addr.sin_addr.s_addr = htonl(INADDR_ANY);
     sock_addr.sin_port = htons(8080);
-    ret = bind(socket, (struct sockaddr*)&sock_addr, sizeof(sock_addr));
+    ret = bind(sock, (struct sockaddr*)&sock_addr, sizeof(sock_addr));
     if (ret) {
         std::cout << "Failed to bind to UDP socket!" << std::endl;
         return -1;
     }
     std::cout << "UDP socket bound!" << std::endl;
 
-    return socket;
+    return sock;
 }
 
 
@@ -259,7 +261,7 @@ static void readSocket(void *arg) {
               bcast.sin_addr.s_addr = sin->sin_addr.s_addr;
               if(numbytes == sizeof(sCommand))
               {
-                memcpy((void*)&scmd, (void*)buf, 24);
+                memcpy((void*)&scmd, (void*)buf, sizeof(scmd));
                 if(scmd.pkt[0] == 'p' && scmd.pkt[1] == 'k' && scmd.pkt[2] == 't') {
                   printf("Got command: mainRPM: %d, wireDiameter: %f, coilLength: %d, direction: %d\n", scmd.mainRPM, scmd.wireDiameter, scmd.coilLength, scmd.direction);
 
@@ -314,8 +316,7 @@ static void wifiTask(void *arg)
     close(sock);
   }
 }
-
-
+#ifdef XXX
 static esp_err_t esp32_wifi_eventHandler(void *ctx, system_event_t *event) {
   //int sock;
     switch(event->event_id) {
@@ -352,9 +353,10 @@ static esp_err_t esp32_wifi_eventHandler(void *ctx, system_event_t *event) {
     }
     return ESP_OK;
 }
-
+#endif
 
 void wifi_station_init() {
+  /*
     tcpip_adapter_init();
 
     wifi_event_group = xEventGroupCreate();
@@ -374,6 +376,7 @@ void wifi_station_init() {
 
     ESP_ERROR_CHECK( esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config) );
     ESP_ERROR_CHECK( esp_wifi_start() );
+    */
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -477,11 +480,12 @@ esp_err_t configTimer(timer_group_t tgrp, timer_idx_t tmr, void (*fn)(void*), vo
 {
   esp_err_t res;
 
-  timer_config_t timerCfg = { true, // alarm enable
-    false, // counter enable
+  timer_config_t timerCfg = {
+    TIMER_ALARM_EN,
+    TIMER_PAUSE,
     TIMER_INTR_LEVEL,
     TIMER_COUNT_UP,
-    true, // auto reload
+    TIMER_AUTORELOAD_EN,
     2 }; // divider
 
   if((res = timer_init(tgrp, tmr, &timerCfg)) == ESP_OK) {
@@ -515,7 +519,7 @@ esp_err_t configTimer(timer_group_t tgrp, timer_idx_t tmr, void (*fn)(void*), vo
 
 extern "C" void app_main()
 {
-  esp_err_t err = nvs_flash_init();
+  nvs_flash_init();
 
   gMutex = xSemaphoreCreateMutex();
 
