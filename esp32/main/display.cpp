@@ -51,17 +51,17 @@ bool DefaultBusInit( void ) {
     return true;
 }
 
-void SetupDemo( struct SSD1306_Device* DisplayHandle, const struct SSD1306_FontDef* Font ) {
+void display_set_font( struct SSD1306_Device* DisplayHandle, const struct SSD1306_FontDef* Font ) {
     SSD1306_Clear( DisplayHandle, SSD_COLOR_BLACK );
     SSD1306_SetFont( DisplayHandle, Font );
 }
 
-void SayHello( struct SSD1306_Device* DisplayHandle, const char* HelloText ) {
+void display_print( struct SSD1306_Device* DisplayHandle, const char* HelloText ) {
     SSD1306_FontDrawAnchoredString( DisplayHandle, TextAnchor_Center, HelloText, SSD_COLOR_WHITE );
     SSD1306_Update( DisplayHandle );
 }
 
-void app_main( void ) {
+void display_init() {
     printf( "Ready...\n" );
 
     if ( DefaultBusInit( ) == true ) {
