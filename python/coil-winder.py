@@ -116,42 +116,42 @@ class CoilWinder:
 			else:
   				print("(Smaller: %d, %d layers, start/stop on opposite ends.)" % (self.minCoils, self.minCoils / self.coilsPerRow))
   				print("(Larger: %d, %d layers, start/stop on same end.)" % (self.maxCoils, self.maxCoils / self.coilsPerRow))
-  				
-		print("G21 (metric ftw)")
-		print("G90 (absolute mode)")
-		print("G92 X0 Y0 Z0 (zero all axes)")
 
-		for i in range(self.windings):
-		
-			if (xPos > self.length):
-				direction = 0;
-			elif (xPos <= 0):
-				direction = 1;
-				
-			if (direction == 1):
-				xPos += self.diameter;
-			else:
-				xPos -= self.diameter;
-				
-			print("G1 X%.3f Y%d F%.2f" % (xPos, i+1, self.rpm))
+                print("G21 (metric ftw)")
+                print("G90 (absolute mode)")
+                print("G92 X0 Y0 Z0 (zero all axes)")
 
-		print("M18 (drives off)")
-		print("M127")
-		
+                for i in range(self.windings):
+
+                        if (xPos > self.length):
+                                direction = 0;
+                        elif (xPos <= 0):
+                                direction = 1;
+
+                        if (direction == 1):
+                                xPos += self.diameter;
+                        else:
+                                xPos -= self.diameter;
+
+                        print("G1 X%.3f Y%d F%.2f" % (xPos, i+1, self.rpm))
+
+                print("M18 (drives off)")
+                print("M127")
+
 
 def main(argv):
-	
-	try:
-		opts, args = getopt.getopt(argv, '', [
-			'help',
-			'awg=',
-			'length=',
-			'windings=',
-			'rpm=',
-		])
-	except getopt.GetoptError:
-		usage()
-		sys.exit(2)
+
+        try:
+                opts, args = getopt.getopt(argv, '', [
+                        'help',
+                        'awg=',
+                        'length=',
+                        'windings=',
+                        'rpm=',
+                ])
+        except getopt.GetoptError:
+                usage()
+                sys.exit(2)
         
 	awg = 28;
 	length = 25.0;

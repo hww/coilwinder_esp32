@@ -34,13 +34,13 @@ struct SSD1306_Device display;
 
 bool default_bus_init( void ) {
     #if defined USE_I2C_DISPLAY
-        assert( SSD1306_I2CMasterInitDefault( ) == true );
-        assert( SSD1306_I2CMasterAttachDisplayDefault( &display, displayWidth, displayHeight, displayAddress, resetPin ) == true );
+    SSD1306_I2CMasterInitDefault( );
+    SSD1306_I2CMasterAttachDisplayDefault( &display, displayWidth, displayHeight, displayAddress, resetPin );
     #endif
 
     #if defined USE_SPI_DISPLAY
-        assert( SSD1306_SPIMasterInitDefault( ) == true );
-        assert( SSD1306_SPIMasterAttachDisplayDefault( &display, displayWidth, displayHeight, displayChipSelect, resetPin ) == true );
+    SSD1306_SPIMasterInitDefault( );
+    SSD1306_SPIMasterAttachDisplayDefault( &display, displayWidth, displayHeight, displayChipSelect, resetPin );
     #endif
 
     return true;

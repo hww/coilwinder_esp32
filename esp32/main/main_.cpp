@@ -175,7 +175,7 @@ void pwmSet(uint32_t duty)
 
   ledc_set_duty(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_0, duty);
   ledc_update_duty(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_0);
-} 
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// MAIN TASK 
@@ -262,8 +262,8 @@ static void timer1Handler(void *arg) {
 
       if(gCnt1 <= 0) {
         gCnt1 = gCoilLengthSteps;
-        togglePin(DIR2_PIN);
-        togglePin(STATUS_PIN);
+        togglePin(motor->dir_pin);
+        togglePin(motor->status_pin);
       }
       
       gpio_set_level(STEP2_PIN, 1);
