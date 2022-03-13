@@ -6,4 +6,6 @@ idf_component_register(
   "led.h"
   "rotary_encoder.c"
   "menu.cpp"
+  "menu_system.cpp"
+  "time.cpp"
    INCLUDE_DIRS "")

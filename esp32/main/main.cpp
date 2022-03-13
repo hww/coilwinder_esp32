@@ -12,25 +12,18 @@
 #include "freertos/task.h"
 #include "esp_system.h"
 #include "esp_spi_flash.h"
+#include "esp_log.h"
+
 #include "display.h"
 #include "motor.h"
 #include "menu.h"
+#include "config.h"
 
 #ifdef CONFIG_IDF_TARGET_ESP32
 #define CHIP_NAME "ESP32"
 #endif
 
-// ==============================================================================
-// Motors
-// ==============================================================================
-
-#define MOTOR_X_STEP_PIN GPIO_NUM_25
-#define MOTOR_X_DIR_PIN GPIO_NUM_26
-#define MOTOR_Y_STEP_PIN GPIO_NUM_27
-#define MOTOR_Y_DIR_PIN GPIO_NUM_14
-
-motor_t motor_x;
-motor_t motor_y;
+static const char* TAG = "main";
 
 // ==============================================================================
 // LEDS
@@ -63,26 +56,21 @@ extern "C" void app_main(void)
     printf("%dMB %s flash\n", spi_flash_get_chip_size() / (1024 * 1024),
             (chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embedded" : "external");
 
+
     display_init();
+    kinematic_init();
+
+    // Init the menu now when all other systems are initialized
     menu_init();
 
-    motor_x.timer = TIMER_0;
-    motor_x.step_pin = MOTOR_X_STEP_PIN;
-    motor_x.dir_pin = MOTOR_X_DIR_PIN;
-    motor_x.status = false;
-    motor_x.cnt_ena = false;
-    motor_x.cnt = 0;
-    motor_x.coil_length_steps = 0;
+    vTaskDelay(200 / portTICK_PERIOD_MS);
 
-    motor_y.timer = TIMER_0;
-    motor_y.step_pin = MOTOR_Y_STEP_PIN;
-    motor_y.dir_pin = MOTOR_Y_DIR_PIN;
-    motor_y.status = false;
-    motor_y.cnt_ena = false;
-    motor_y.cnt = 0;
-    motor_y.coil_length_steps = 0;
+    const TickType_t time_increment = MOTOR_UPDATE_PERIOD_MS / portTICK_PERIOD_MS;
+    TickType_t last_wake_time = xTaskGetTickCount();
 
     while (true) {
+        vTaskDelayUntil( &last_wake_time, time_increment );
+        kinematic_update();
         menu_update();
     }
     /*
