@@ -1,0 +1,47 @@
+(undo-tree-save-format-version . 1)
+"9b0d15fe98b96afc72a31484d77da560cc2e1089"
+[nil nil nil nil (25139 19128 683468 60000) 0 nil]
+([nil nil ((#("U" 0 1 (fontified t face font-lock-function-name-face)) . 206) (t 25135 28734 684424 591000)) nil (25139 19128 683454 560000) 0 nil])
+([nil nil ((206 . 207)) nil (25139 19128 683438 560000) 0 nil])
+([nil nil ((163 . 166) (t 25139 19128 686301 891000)) nil (25139 19149 505286 120000) 0 nil])
+([nil nil ((166 . 173)) nil (25139 19149 505272 921000) 0 nil])
+([nil nil ((#("  " 0 2 (fontified nil ws-butler-chg chg)) . 164) (173 . 174)) nil (25139 19149 505259 520000) 0 nil])
+([nil nil ((65 . 170) (#("
+{
+    public:
+        Time();
+
+        float time;
+        float delta_time;
+        float speed;
+private:
+        uint64_t last_time;
+
+      " 0 7 (fontified t) 7 13 (fontified t face font-lock-keyword-face) 13 14 (fontified t c-type c-decl-id-start) 14 23 (fontified t) 23 27 (fontified t face font-lock-function-name-face) 27 40 (fontified t) 40 44 (fontified t face font-lock-type-face) 44 45 (fontified t c-type c-decl-id-start face font-lock-type-face) 45 46 (fontified t) 46 50 (fontified t face font-lock-variable-name-face) 50 60 (fontified t) 60 64 (fontified t face font-lock-type-face) 64 65 (fontified t c-type c-decl-id-start face font-lock-type-face) 65 66 (fontified t) 66 76 (fontified t face font-lock-variable-name-face) 76 78 (fontified t) 78 86 (fontified t) 86 90 (fontified t face font-lock-type-face) 90 91 (fontified t c-type c-decl-id-start face font-lock-type-face) 91 92 (fontified t) 92 97 (fontified t face font-lock-variable-name-face) 97 98 (fontified t) 98 99 (fontified t ws-butler-chg chg) 99 100 (fontified t ws-butler-chg delete face font-lock-keyword-face) 100 101 (fontified t ws-butler-chg chg face font-lock-keyword-face) 101 102 (fontified t ws-butler-chg chg face font-lock-keyword-face) 102 103 (fontified t ws-butler-chg chg face font-lock-keyword-face) 103 104 (fontified t ws-butler-chg chg face font-lock-keyword-face) 104 105 (fontified t ws-butler-chg chg face font-lock-keyword-face) 105 106 (fontified t ws-butler-chg chg face font-lock-keyword-face) 106 107 (fontified t ws-butler-chg chg c-type c-decl-end) 107 108 (fontified t) 108 116 (fontified t) 116 123 (fontified t face font-lock-type-face) 123 124 (fontified t c-type c-decl-id-start face font-lock-type-face) 124 125 (fontified t) 125 134 (fontified t face font-lock-variable-name-face) 134 135 (fontified t) 135 137 (fontified t) 137 143 (fontified t)) . 65) (undo-tree-id0 . -7) (undo-tree-id1 . -14) (undo-tree-id2 . -23) (undo-tree-id3 . -30) (undo-tree-id4 . -40) (undo-tree-id5 . -51) (undo-tree-id6 . -60) (undo-tree-id7 . -77) (undo-tree-id8 . -116) (undo-tree-id9 . -135) (undo-tree-id10 . -86) (undo-tree-id11 . -98) (undo-tree-id12 . -99) (undo-tree-id13 . -107) (undo-tree-id14 . -99) (undo-tree-id15 . -108)) nil (25139 19149 505242 921000) 0 nil])
+([nil nil ((#("  void update();
+" 0 1 (fontified t ws-butler-chg delete) 1 2 (fontified t) 2 5 (fontified t face font-lock-type-face) 5 6 (fontified t c-type c-decl-id-start face font-lock-type-face) 6 7 (fontified t) 7 8 (ws-butler-chg chg fontified t face font-lock-function-name-face) 8 9 (ws-butler-chg delete fontified t face font-lock-function-name-face) 9 13 (fontified t face font-lock-function-name-face) 13 16 (fontified t) 16 17 (fontified t)) . 170) (undo-tree-id27 . -2) (undo-tree-id28 . -16) (undo-tree-id29 . -17) (t 25139 19149 506301 104000)) nil (25139 19164 308343 361000) 0 nil])
+([nil nil ((138 . 139) (#(" " 0 1 (fontified nil ws-butler-chg chg)) . 138) (137 . 138)) nil (25139 19164 308324 861000) 0 nil])
+([nil nil ((nil rear-nonsticky nil 154 . 155) (nil fontified nil 154 . 155) (nil fontified nil 151 . 154) (nil fontified nil 147 . 151) (nil fontified nil 146 . 147) (nil fontified nil 145 . 146) (nil fontified nil 144 . 145) (nil fontified nil 143 . 144) (nil fontified nil 140 . 143) (nil fontified nil 139 . 140) (nil fontified nil 138 . 139) (138 . 155)) nil (25139 19164 308310 962000) 0 nil])
+([nil nil ((#("  Time();
+" 0 2 (fontified t ws-butler-chg chg) 2 6 (fontified t ws-butler-chg chg face font-lock-function-name-face) 6 10 (fontified t ws-butler-chg chg)) . 77) (undo-tree-id26 . -10)) nil (25139 19164 308294 962000) 0 nil])
+([nil nil ((#("
+" 0 1 (fontified t ws-butler-chg delete)) . 77) (undo-tree-id25 . -1)) nil (25139 19164 308276 161000) 0 nil])
+([nil nil ((77 . 78)) nil (25139 19164 308260 762000) 0 nil])
+([nil nil ((127 . 130)) nil (25139 19164 308247 861000) 0 nil])
+([nil nil ((128 . 130) (#("    " 0 2 (ws-butler-chg chg fontified nil) 2 4 (ws-butler-chg chg fontified nil)) . 128) (undo-tree-id20 . -2) (undo-tree-id21 . -2) (undo-tree-id22 . -2) (undo-tree-id23 . -2) (undo-tree-id24 . -2) (nil rear-nonsticky nil 140 . 141) (nil fontified nil 140 . 141) (nil fontified nil 136 . 140) (nil fontified nil 132 . 136) (nil fontified nil 130 . 132) (130 . 141)) nil (25139 19164 308233 662000) 0 nil])
+([nil nil ((#("
+" 0 1 (ws-butler-chg chg fontified t rear-nonsticky t)) . 138) (undo-tree-id19 . -1)) nil (25139 19164 308211 861000) 0 nil])
+([nil nil ((#("
+" 0 1 (ws-butler-chg delete fontified t)) . 138) (undo-tree-id16 . 1) (undo-tree-id17 . -1) (undo-tree-id18 . -1)) nil (25139 19164 308192 662000) 0 nil])
+([nil nil ((#("  Time();
+" 0 2 (ws-butler-chg chg fontified t) 2 3 (ws-butler-chg delete fontified t face font-lock-function-name-face) 3 6 (ws-butler-chg chg fontified t face font-lock-function-name-face) 6 10 (ws-butler-chg chg fontified t)) . 128) (undo-tree-id41 . -10) (undo-tree-id42 . -2) (undo-tree-id43 . -9) (t 25139 19164 309633 873000)) nil (25139 19262 609606 843000) 0 nil])
+([nil nil ((#("  void update();
+" 0 1 (ws-butler-chg delete fontified t) 1 2 (ws-butler-chg chg fontified t) 2 5 (ws-butler-chg chg fontified t face font-lock-type-face) 5 6 (ws-butler-chg chg fontified t c-type c-decl-id-start face font-lock-type-face) 6 7 (ws-butler-chg chg fontified t) 7 8 (ws-butler-chg chg fontified t face font-lock-function-name-face) 8 9 (ws-butler-chg chg fontified t face font-lock-function-name-face) 9 13 (ws-butler-chg chg fontified t face font-lock-function-name-face) 13 16 (ws-butler-chg chg fontified t) 16 17 (ws-butler-chg chg rear-nonsticky t fontified t)) . 128) (undo-tree-id39 . -2) (undo-tree-id40 . -16)) nil (25139 19262 609585 343000) 0 nil])
+([nil nil ((#("
+" 0 1 (ws-butler-chg delete fontified t)) . 128) (undo-tree-id37 . -1) (undo-tree-id38 . -1)) nil (25139 19262 609565 743000) 0 nil])
+([nil nil ((77 . 80)) nil (25139 19262 609548 943000) 0 nil])
+([nil nil ((78 . 80) (#("    " 0 2 (fontified nil ws-butler-chg chg) 2 4 (ws-butler-chg chg fontified nil)) . 78) (undo-tree-id32 . -2) (undo-tree-id33 . -2) (undo-tree-id34 . -2) (undo-tree-id35 . -2) (undo-tree-id36 . -2) (nil rear-nonsticky nil 107 . 108) (nil fontified nil 107 . 108) (nil fontified nil 106 . 107) (nil fontified nil 103 . 106) (nil fontified nil 99 . 103) (nil fontified nil 98 . 99) (nil fontified nil 97 . 98) (nil fontified nil 96 . 97) (nil fontified nil 95 . 96) (nil fontified nil 92 . 95) (nil fontified nil 91 . 92) (nil fontified nil 90 . 91) (nil fontified nil 86 . 90) (nil fontified nil 83 . 86) (nil fontified nil 82 . 83) (nil fontified nil 80 . 82) (80 . 108)) nil (25139 19262 609534 543000) 0 nil])
+([nil nil ((88 . 89)) nil (25139 19262 609511 43000) 0 nil])
+([nil current ((#("
+" 0 1 (ws-butler-chg chg rear-nonsticky t fontified t)) . 106) (undo-tree-id30 . -1) (undo-tree-id31 . -1)) nil (25139 19262 609495 443000) 0 nil])
+nil

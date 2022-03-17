@@ -1,0 +1,5 @@
+(undo-tree-save-format-version . 1)
+"ba50037210655b6c0095616c51d6542611ce1df1"
+[nil nil nil nil (25139 23119 250938 917000) 0 nil]
+([nil current ((#("p" 0 1 (fontified t c-in-sws t ws-butler-chg delete face font-lock-string-face)) . 284) (undo-tree-id0 . -1) (undo-tree-id1 . -1) (undo-tree-id2 . -1) (#("p" 0 1 (fontified t face font-lock-string-face c-in-sws t)) . 284) (t 25136 44203 401793 148000)) nil (25139 23119 250923 617000) 0 nil])
+nil

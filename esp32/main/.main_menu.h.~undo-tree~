@@ -1,0 +1,23 @@
+(undo-tree-save-format-version . 1)
+"b06afe2d7a4bb60fccb6fb91405b969f7168be80"
+[nil nil nil nil (25139 18646 269871 857000) 0 nil]
+([nil nil ((40 . 41) (t 25138 17936 406963 695000)) nil (25139 18646 269859 457000) 0 nil])
+([nil nil ((41 . 61)) nil (25139 18646 269846 457000) 0 nil])
+([nil nil ((61 . 62)) nil (25139 18646 269834 257000) 0 nil])
+([nil nil ((62 . 63)) nil (25139 18646 269821 457000) 0 nil])
+([nil nil ((63 . 66)) nil (25139 18646 269808 857000) 0 nil])
+([nil nil ((#("  " 0 2 (fontified t ws-butler-chg chg)) . 64) (undo-tree-id6 . -2) (undo-tree-id7 . -2) 66) nil (25139 18646 269795 957000) 0 nil])
+([nil nil ((#("class MenuController
+" 0 1 (fontified t ws-butler-chg chg c-is-sws t) 1 2 (fontified t ws-butler-chg chg) 2 3 (fontified t ws-butler-chg chg) 3 4 (fontified t ws-butler-chg chg) 4 5 (fontified t ws-butler-chg chg c-type c-decl-id-start) 5 6 (fontified t ws-butler-chg chg) 6 7 (fontified t ws-butler-chg chg face font-lock-variable-name-face) 7 8 (fontified t ws-butler-chg chg face font-lock-variable-name-face) 8 9 (fontified t ws-butler-chg chg face font-lock-variable-name-face) 9 10 (fontified t ws-butler-chg chg face font-lock-variable-name-face) 10 11 (fontified t ws-butler-chg chg face font-lock-variable-name-face) 11 12 (fontified t ws-butler-chg chg face font-lock-variable-name-face) 12 13 (fontified t ws-butler-chg chg face font-lock-variable-name-face) 13 14 (fontified t ws-butler-chg chg face font-lock-variable-name-face) 14 15 (fontified t ws-butler-chg chg face font-lock-variable-name-face) 15 16 (fontified t ws-butler-chg chg face font-lock-variable-name-face) 16 17 (fontified t ws-butler-chg chg face font-lock-variable-name-face) 17 18 (fontified t ws-butler-chg chg face font-lock-variable-name-face) 18 19 (fontified t ws-butler-chg chg face font-lock-variable-name-face) 19 20 (fontified t ws-butler-chg chg face font-lock-variable-name-face) 20 21 (fontified t ws-butler-chg chg)) . 41) (undo-tree-id4 . -20) (undo-tree-id5 . -21)) nil (25139 18646 269779 157000) 0 nil])
+([nil nil ((#("{
+" 0 1 (fontified t ws-butler-chg delete) 1 2 (fontified t ws-butler-chg chg)) . 41) (undo-tree-id2 . -2) (undo-tree-id3 . -2)) nil (25139 18646 269762 657000) 0 nil])
+([nil nil ((#("
+" 0 1 (fontified t ws-butler-chg delete)) . 41) (undo-tree-id0 . -1) (undo-tree-id1 . -1)) nil (25139 18646 269743 157000) 0 nil])
+([nil nil ((51 . 62) (t 25139 18646 272986 912000)) nil (25139 18654 634859 925000) 0 nil])
+([nil nil ((80 . 88) (t 25139 18654 636319 927000)) nil (25139 18663 496721 472000) 0 nil])
+([nil nil ((88 . 91)) nil (25139 18663 496704 872000) 0 nil])
+([nil nil ((#("extern float g_speed;
+" 0 6 (fontified t face font-lock-keyword-face) 6 7 (fontified t) 7 11 (fontified t face font-lock-type-face) 11 12 (fontified t c-type c-decl-id-start face font-lock-type-face) 12 13 (fontified t) 13 20 (fontified t face font-lock-variable-name-face) 20 22 (fontified t)) . 102) (undo-tree-id8 . -21) (undo-tree-id9 . -22) (t 25139 18663 499652 928000)) nil (25139 18668 559322 541000) 0 nil])
+([nil current ((#("
+" 0 1 (fontified t)) . 101) (102 . 102)) nil (25139 18668 559295 40000) 0 nil])
+nil

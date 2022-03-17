@@ -1,11 +1,19 @@
 idf_component_register(
   SRCS
-  "main.cpp"
+  "gpiolib.cpp"
+  "mathlib.cpp"
   "display.cpp"
-  "motor.cpp"
-  "led.h"
+  "led.cpp"
   "rotary_encoder.c"
+  "menu_item.cpp"
   "menu.cpp"
   "menu_system.cpp"
+  "menu_controller.cpp"
   "time.cpp"
+  "wire.cpp"
+  "step_motor_config.cpp"
+  "step_motor_hal.cpp"
+  "step_motor.cpp"
+  "kinematic.cpp"
+  "main.cpp"
    INCLUDE_DIRS "")

@@ -12,19 +12,25 @@
 #include "freertos/semphr.h"
 #include "esp_system.h"
 
-#include "time.hpp"
+#include "time.h"
 
 // =========================================================================
 //
 
-Time::Time() : m_time(0), m_delta_time(0) {
-
+Time::Time()
+    : time(0)
+    , delta_time(0)
+    , speed(1)
+{
+    last_time = esp_timer_get_time();
 }
 
 void Time::update()
 {
-    double timeus = (double)esp_timer_get_time();
-    float timesec = timeus / 1000000;
-    m_delta_time = timesec - m_time;
-    m_time = timesec;
+    auto t = esp_timer_get_time();
+    auto dt = t-last_time;
+    last_time = t;
+    float dtsec = (float)dt / 1000000;
+    delta_time = dtsec * speed;
+    time += delta_time;
 }
