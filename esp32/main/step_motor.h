@@ -41,6 +41,7 @@ class StepMotorAgent {
 
   StepMotorAgent();
   void init(StepMotor* motor);
+  void move_to(unit_t pos, unit_t velocity);
   void move_to(steps_t pos, unit_t velocity);
   void stop();
   void on_step();
@@ -54,6 +55,9 @@ class StepMotor  {
   void init_menu(Menu* menu, std::string name);
   void update(float time);
 
+  unit_t get_target_position();
+  void set_target_position(unit_t vel);
+  unit_t get_target_velocity();
   void set_target_velocity(unit_t vel);
   bool get_enable();
   void set_enable(bool v);

@@ -16,8 +16,9 @@ class Kinematic {
         StepMotor rmotor;
         StepMotorConfig xconfig;
         StepMotorConfig rconfig;
+
+        static Kinematic instance;
 };
 
-extern Kinematic kinematic;
 
 #endif // KINEMATIC_H_

@@ -3,6 +3,7 @@
 
 #include <string>
 #include "menu_event.h"
+#include <functional>
 
 // ==============================================================================
 // Generic menu interface
@@ -20,6 +21,7 @@ class MenuItem {
   virtual void render();
   virtual void on_event(MenuEvent evt);
   virtual void on_modified();
+  virtual bool is_menu();
 
   Menu* parent;
   std::string label;
@@ -36,13 +38,14 @@ class MenuItem {
 
 class FloatItem : public MenuItem {
 
- public:
+  public:
+  static const int DEFAULT_STEP;
   static const int DEFAULT_PRECISION;
   static const char DEFAULT_FORMATS[7][16];
 
   // Delegates for floating point formats
-  typedef float (*getter_t)();
-  typedef void (*setter_t)(float val);
+  typedef std::function<float()> getter_t;
+  typedef std::function<void(float)> setter_t;
 
   FloatItem()
     : MenuItem()
@@ -50,15 +53,15 @@ class FloatItem : public MenuItem {
     , setter()
     , format(DEFAULT_FORMATS[DEFAULT_PRECISION])
     , precision(DEFAULT_PRECISION)
-    , step(1.0 / DEFAULT_PRECISION)
+    , step(DEFAULT_STEP)
   {}
-  FloatItem(Menu* parent, std::string label, getter_t g, setter_t s, int order = 0)
+  FloatItem(Menu* parent, std::string label, getter_t g, setter_t s, float _step = DEFAULT_STEP, int order = 0)
     : MenuItem(parent, label, order)
     , getter(g)
     , setter(s)
     , format(DEFAULT_FORMATS[DEFAULT_PRECISION])
     , precision(DEFAULT_PRECISION)
-    , step(1.0 / DEFAULT_PRECISION) {
+    , step(_step) {
   }
 
   getter_t getter;
@@ -90,8 +93,8 @@ class IntItem : public MenuItem {
 
  public:
   // Delegates for inting point formats
-  typedef int (*getter_t)();
-  typedef void (*setter_t)(int val);
+  typedef std::function<int()> getter_t;
+  typedef std::function<void(int)> setter_t;
 
   IntItem() : MenuItem(), getter(), setter(), format("%d"), step(1) {}
   IntItem(Menu* parent, std::string label, getter_t g, setter_t s, int order = 0)
@@ -129,8 +132,8 @@ class BoolItem : public MenuItem {
 
  public:
   // Delegates for booling pobool formats
-  typedef bool (*getter_t)();
-  typedef void (*setter_t)(bool val);
+  typedef std::function<bool()>getter_t;
+  typedef std::function<void(bool)> setter_t;
 
   BoolItem() : MenuItem(), getter(), setter(), format("%d") {}
   BoolItem(Menu* parent, std::string label, getter_t g, setter_t s, bool order = 0)
@@ -165,15 +168,13 @@ class BoolItem : public MenuItem {
 class ActionItem : public MenuItem {
 
  public:
-  typedef void (*action_t)(ActionItem* item, MenuEvent evt);
+  typedef std::function<void(MenuItem* item, MenuEvent evt)> action_t;
 
   ActionItem() : MenuItem(), action() {}
   ActionItem(Menu* parent, std::string label, action_t action, bool order = 0)
     : MenuItem(parent, label, order)
     , action(action) {
   }
-
-  action_t action;
 
   void render();
   void on_event(MenuEvent evt);
@@ -183,6 +184,8 @@ class ActionItem : public MenuItem {
     order = _order;
     return *this;
   }
+  action_t action;
+  uint64_t last_call;
 };
 
 

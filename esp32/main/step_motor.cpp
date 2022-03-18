@@ -33,9 +33,17 @@ void StepMotorAgent::init(StepMotor* _motor) {
   config = motor->config;
 }
 
+void StepMotorAgent::move_to(unit_t pos, unit_t _velocity) {
+  target = config->units_to_steps(pos);
+  velocity = abs(_velocity);
+  moving = true;
+  on_step();
+}
+
 void StepMotorAgent::move_to(steps_t pos, unit_t _velocity) {
   target = pos;
-  velocity = _velocity;
+  velocity = abs(_velocity);
+  moving = true;
   on_step();
 }
 
@@ -45,10 +53,11 @@ void StepMotorAgent::on_step() {
 
   if (moving) {
     if (target < motor->position) {
-      motor->set_target_velocity(velocity);
-    } else if (target > motor->position) {
       motor->set_target_velocity(-velocity);
+    } else if (target > motor->position) {
+      motor->set_target_velocity(velocity);
     } else {
+      motor->set_target_velocity(0);
       moving = false;
       ESP_LOGI(TAG, "[%d] Moving complete", motor->id);
     }
@@ -87,6 +96,7 @@ void StepMotor::init(StepMotorConfig* _config) {
   config = _config;
   id = _config->id;
   ESP_LOGI(TAG, "[%d] Initialize motor", id);
+  config->init();
   hal.init(this);
   agent.init(this);
   // Reset the motor's status
@@ -104,30 +114,30 @@ void StepMotor::init(StepMotorConfig* _config) {
 
 /** Initialize menu system */
 void StepMotor::init_menu(Menu* parent, std::string name) {
-  /*
+
   auto menu = new Menu(parent, name);
-  parent_menu->Add(menu);
-  menu->add(parent_menu);
-  menu->add(new FloatItem("vel.", []() {
-    return GetTargetVelocity();
-  }, [](float v) {
-    SetTargetVelocity(v);
-  }));
-  auto pos_01 = new FloatItem("Pos+-1", []() {
-    return GetTargetPosition();
-  }, [](float v) {
-    SetTargetPosition(v);
-  });
-  auto pos_10 = new FloatItem("Pos+-10", []() {
-    return GetTargetPosition();
-  }, [](float v) {
-    SetTargetPosition(v);
-  });
-  pos_01.Step(1);
-  pos_10.Step(10);
-  menu->Add(pos_01);
-  menu->Add(pos_10);
-  */
+  parent->add(menu);
+  menu->add(new IntItem(menu, "log",
+                          [&]() { return log; },
+                          [&](int v) { log = v; }
+                          ));
+  auto vel = new FloatItem(menu, "vel.",
+                           [&]() { return (float)get_target_velocity(); },
+                           [&](float v) { set_target_velocity((unit_t)v); });
+  vel->set_step(1);
+  menu->add(vel);
+  // Move to target position
+  auto pos1 = new FloatItem(menu, "pos+-1",
+                          [&]() { return (float)get_target_position(); },
+                          [&](int v) { set_target_position((float)v); });
+  pos1->set_step(1);
+  menu->add(pos1);
+  // Move to target position
+  auto pos10 = new FloatItem(menu, "pos+-10",
+                           [&]() { return (float)get_target_position(); },
+                           [&](int v) { set_target_position((float)v); });
+  pos10->set_step(10);
+  menu->add(pos10);
 }
 
 /** Update the motor even 20ms */
@@ -141,6 +151,16 @@ void StepMotor::update(float time) {
 // Utilities
 // ==================================================
 
+unit_t StepMotor::get_target_position() {
+  return config->steps_to_units(agent.target);
+}
+void StepMotor::set_target_position(unit_t pos) {
+  agent.move_to(pos, config->max_velocity);
+}
+
+unit_t StepMotor::get_target_velocity() {
+  return target_velocity;
+}
 void StepMotor::set_target_velocity(unit_t vel) {
   target_velocity = vel;
   if (vel == 0)
@@ -209,8 +229,10 @@ void StepMotor::update_velocity(float time) {
 
   // Restart the timer
   if (velocity != old_velocity) {
-    auto steps_per_sec = config->units_to_steps(velocity);
-    timer_interval_us = (uint64_t)((double)1.0 / steps_per_sec * 1000000);
+    float steps_per_sec = config->units_to_fsteps(abs(velocity));
+    if (log > 3)
+      printf("[%d] steps-per-sec: %f\n", id, steps_per_sec);
+    timer_interval_us = (uint64_t)(((double)1.0 / steps_per_sec) * 1000000);
     verify_timer_interval(timer_interval_us);
 
     if (log > 2)
@@ -248,8 +270,10 @@ void StepMotor::isr() {
     position += get_direction(velocity);
     agent.on_step();
 
+
     if (hal.get_endpoint())
       agent.stop();
+
   }
 }
 

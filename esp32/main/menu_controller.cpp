@@ -36,9 +36,11 @@ static bool button_b;
 void menu_controller_update();
 
 static int get_encoder_evt_dir (rotary_encoder_state_t &state);
+static bool get_press(gpio_num_t gpio, bool &old_state);
+#ifdef DIRECT_ACESS_TO_QUAD_ENCODER
 static int get_encoder_dir();
 static int get_encoder_pos();
-static bool get_press(gpio_num_t gpio, bool &old_state);
+#endif
 
 // ==============================================================================
 // Initializer
@@ -82,7 +84,7 @@ void menu_controller_update() {
 
     if (dir != 0) {
       if (MenuSystem::instance.is_edit) {
-        auto evt = dir>0 ? MenuEvent::Down : MenuEvent::Up;
+        auto evt = dir>0 ? MenuEvent::Right : MenuEvent::Left;
         MenuSystem::instance.on_event(evt);
       } else {
         auto evt = dir>0 ? MenuEvent::Down : MenuEvent::Up;
@@ -101,6 +103,7 @@ void menu_controller_update() {
 //    ROTARY_ENCODER_DIRECTION_COUNTER_CLOCKWISE,
 // ==============================================================================
 
+
 static int get_encoder_evt_dir (rotary_encoder_state_t &state) {
   if (state.direction == ROTARY_ENCODER_DIRECTION_CLOCKWISE)
     return 1;
@@ -110,6 +113,8 @@ static int get_encoder_evt_dir (rotary_encoder_state_t &state) {
 
   return 0;
 }
+
+#ifdef DIRECT_ACESS_TO_QUAD_ENCODER
 
 static int get_encoder_dir() {
   rotary_encoder_state_t state = { 0, ROTARY_ENCODER_DIRECTION_NOT_SET  };
@@ -129,6 +134,8 @@ static int get_encoder_dir() {
   ESP_ERROR_CHECK(rotary_encoder_get_state(&encoder_info, &state));
   return state.position;
 }
+
+#endif
 
 // ==============================================================================
 // The menu system

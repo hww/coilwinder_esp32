@@ -38,8 +38,8 @@ extern float g_speed;
 
 /** All motors usualy have some amout of steps per turn */
 #define MOTOR_STEPS_PER_TURN 200
-#define MOTOR_STEP_PULSE_WIDTH_MS 1
-#define MOTOR_DIR_PULSE_DELAY_MS 1
+#define MOTOR_STEP_PULSE_WIDTH_MS 3
+#define MOTOR_DIR_PULSE_DELAY_MS 3
 #define MOTOR_ENABLE_PULSE_DELAY_MS 10
 
 #define MOTOR_X_STEP_PIN GPIO_NUM_25

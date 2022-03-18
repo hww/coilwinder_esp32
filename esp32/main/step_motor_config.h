@@ -44,6 +44,7 @@ class StepMotorConfig {
   void init();
   unit_t steps_to_units(steps_t steps);
   steps_t units_to_steps(unit_t units);
+  float units_to_fsteps(unit_t units);
 
 };
 

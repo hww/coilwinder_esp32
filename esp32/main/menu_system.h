@@ -6,26 +6,30 @@
 class Menu;
 
 class MenuSystem {
- public:
+  public:
 
-  MenuSystem();
+    MenuSystem();
 
-  void init();
-  void update(float time);
-  void render();
-  void on_event(MenuEvent evt);
-  void open_menu(Menu* menu, int line_num = -1);
-  void close_menu(Menu* menu);
-  void toggle_edit();
+    void init(Menu* root);
+    void update(float time);
+    void render();
+    void on_event(MenuEvent evt);
+    void open_menu(Menu* menu, int line_num = -1);
+    void close_menu(Menu* menu);
+    void toggle_edit();
+    float get_speed();
+    void set_speed(float speed);
 
-  Menu* root;
-  Menu* current;
-  bool is_edit;
-  bool is_visible;
-  float refresh_at;
-  float modification_speed;
+    Menu* root;
+    Menu* current;
+    bool is_edit;
+    bool is_visible;
 
-  static MenuSystem instance;
+    static MenuSystem instance;
+
+  private:
+    float modification_speed;
+    float refresh_at;
 
 };
 

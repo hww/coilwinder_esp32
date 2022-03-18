@@ -6,6 +6,14 @@
 
 static const char TAG[] = "motor-hal";
 
+// N.B. Printing from ISR maybe be danerous and slow down execution!
+#define PRINT_LOG_ENABLED (0)
+#if PRINT_LOG_ENABLED==1
+#define PRINT_LOG(name, val) printf("%s=%d\n", name, val)
+#else
+#define PRINT_LOG(name, val)
+#endif
+
 /** ******************************************/
 /** The GPIO driver of the StepMotor         */
 /** ******************************************/
@@ -28,6 +36,7 @@ bool StepMotorHAL::get_enable() {
   return false;
 }
 void StepMotorHAL::set_enable(bool v) {
+  PRINT_LOG("set_enable",v);
   if (config->enable_pin != GPIO_NULL)
     set_gpio(config->enable_pin, v != config->enable_pin_reverse);
 }
@@ -38,10 +47,12 @@ bool StepMotorHAL::get_direction() {
   return false;
 }
 void StepMotorHAL::set_direction(bool v) {
+  PRINT_LOG("set_direction",v);
   if (config->dir_pin != GPIO_NULL)
     set_gpio(config->dir_pin, v != config->dir_pin_reverse);
 }
 void StepMotorHAL::set_step(bool v) {
+  PRINT_LOG("set_step",v);
   if (config->step_pin != GPIO_NULL)
     set_gpio(config->step_pin, v != config->step_pin_reverse);
 }

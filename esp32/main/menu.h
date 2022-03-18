@@ -19,14 +19,18 @@ class Menu : public MenuItem {
   void on_modifyed();
   int get_line();
   void set_line(int n);
-  inline std::vector<MenuItem*> get_items() {return items;}
-  inline Menu &add(MenuItem* item);
+  Menu &add(MenuItem* item);
+  bool is_menu();
+
   inline int size() { return items.size(); }
+  inline std::vector<MenuItem*> get_items() {return items;}
 
   menu_delegate on_open;
   menu_delegate on_close;
 
 private:
+  void on_event_to_item(MenuEvent evt);
+
   std::vector<MenuItem*> items;
   int line;
 };

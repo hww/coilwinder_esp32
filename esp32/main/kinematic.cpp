@@ -1,11 +1,11 @@
 #include "config.h"
 #include "kinematic.h"
-#include "menu_system.h"
-#include "menu_item.h"
+#include "menu_export.h"
 #include "step_motor_config.h"
 
-Kinematic kinematic;
-static bool motors_disabled;
+Kinematic Kinematic::instance;
+
+static bool motors_enabled;
 
 Kinematic::Kinematic()
 {
@@ -64,6 +64,10 @@ void Kinematic::init()
   // Initialize motors
   xmotor.init(&xconfig);
   rmotor.init(&rconfig);
+
+  motors_enabled = true;
+  Kinematic::instance.xmotor.set_enable(motors_enabled);
+  Kinematic::instance.rmotor.set_enable(motors_enabled);
 }
 
 
@@ -72,36 +76,22 @@ void Kinematic::update(float time) {
   rmotor.update(time);
 }
 
-
-
-static void toggle_drivers(MenuItem* item) {
-  if (motors_disabled) {
-    kinematic.xmotor.set_enable(true);
-    kinematic.rmotor.set_enable(true);
-    motors_disabled = false;
-  } else {
-    kinematic.xmotor.set_enable(false);
-    kinematic.rmotor.set_enable(false);
-    motors_disabled = true;
-  }
+static void toggle_drivers(MenuItem* item, MenuEvent evt) {
+  motors_enabled = !motors_enabled;
+  Kinematic::instance.xmotor.set_enable(motors_enabled);
+  Kinematic::instance.rmotor.set_enable(motors_enabled);
 }
 
-static void start_homing_task(MenuItem* item) {
-  kinematic.xmotor.move_to_home();
+static void start_homing_task(MenuItem* item, MenuEvent evt) {
+  Kinematic::instance.xmotor.move_to_home();
 }
-
-
 
 void Kinematic::init_menu(Menu* parent, std::string name)
 {
-  /*
   auto menu = new Menu(parent, name);
-  parent->Add(menu);
-  menu->Add(parent_menu);
-  menu->Add(new FuncItem("disable", &toggle_drivers));
-  menu->Add(new FuncItem("homing", &start_homing_task));
-
-  xmotor.init_menu(menu, "Mot X...");
-  rmotor.init_enu(menu, "Mot R...");
-  */
+  parent->add(menu);
+  menu->add(new ActionItem(menu, "m-onoff", &toggle_drivers));
+  menu->add(new ActionItem(menu, "homing", &start_homing_task));
+  xmotor.init_menu(menu, "Mot X");
+  rmotor.init_menu(menu, "Mot R");
 }

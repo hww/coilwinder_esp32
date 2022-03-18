@@ -1,5 +1,6 @@
 #include "menu.h"
 #include "menu_system.h"
+#include <cstdio>
 
 // =============================================================================================
 // The menu
@@ -23,7 +24,11 @@ Menu::Menu(Menu* parent, std::string label, int order)
     , line(0)
 {
     value = "...";
+    if (parent != nullptr)
+        add(parent);
 }
+
+bool Menu::is_menu() { return true; }
 
 int Menu::get_line() {
   return line;
@@ -52,11 +57,19 @@ void Menu::on_event(MenuEvent evt) {
             render();
             break;
         case MenuEvent::PressQuad:
-            MenuSystem::instance.open_menu(this);
-            break;
+        {
+            auto item = items[line];
+            if (item->is_menu())
+                MenuSystem::instance.open_menu((Menu*)item);
+            else
+                items[line]->on_event(evt);
+        }
+        break;
         case MenuEvent::Right:
+            items[line]->on_event(evt);
             break;
         case MenuEvent::Left:
+            items[line]->on_event(evt);
             break;
         case MenuEvent::Up:
             if (line > 0)

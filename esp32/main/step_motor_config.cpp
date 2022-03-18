@@ -23,3 +23,7 @@ steps_t StepMotorConfig::units_to_steps(unit_t units) {
   float rotations = (float)units / rotation_distance;
   return (steps_t)(rotations * microsteps_per_turn);
 }
+float StepMotorConfig::units_to_fsteps(unit_t units) {
+  float rotations = (float)units / rotation_distance;
+  return (rotations * microsteps_per_turn);
+}
