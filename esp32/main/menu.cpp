@@ -1,4 +1,5 @@
 #include "menu.h"
+#include "menu_event.h"
 #include "menu_system.h"
 #include <cstdio>
 
@@ -8,20 +9,18 @@
 
 Menu::Menu()
     : MenuItem()
-    , on_open()
-    , on_close()
     , items()
     , line(0)
+    , version(0)
 {
     value = "...";
 }
 
 Menu::Menu(Menu* parent, std::string label, int order)
     : MenuItem(parent, label, order)
-    , on_open()
-    , on_close()
     , items()
     , line(0)
+    , version(0)
 {
     value = "...";
     if (parent != nullptr)
@@ -65,6 +64,12 @@ void Menu::on_event(MenuEvent evt) {
                 items[line]->on_event(evt);
         }
         break;
+        case MenuEvent::PressA:
+            MenuSystem::instance.send_to_menu_listeners(items[line], evt);
+            break;
+        case MenuEvent::PressB:
+            MenuSystem::instance.send_to_menu_listeners(items[line], evt);
+            break;
         case MenuEvent::Right:
             items[line]->on_event(evt);
             break;
@@ -84,4 +89,18 @@ void Menu::on_event(MenuEvent evt) {
         default:
             break;
     }
+}
+
+MenuItem* Menu::find(std::string label)
+{
+    for (auto item : items) {
+        if (item->label == label)
+            return item;
+    }
+    return nullptr;
+}
+
+void Menu::on_item_modified()
+{
+    version++;
 }

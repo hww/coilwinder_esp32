@@ -81,7 +81,9 @@ void display_print(int x, int y, const char* text ) {
     SSD1306_FontDrawString( &display, x, y, text, SSD_COLOR_WHITE );
 }
 
-void display_update() { SSD1306_Update(&display); }
+void display_update() {
+    SSD1306_Update(&display);
+}
 
 /** Initialize the display engine */
 bool display_init() {

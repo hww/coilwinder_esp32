@@ -1,4 +1,8 @@
 #include <math.h>
+#include <string>
+#include <filesystem>
+#include <assert.h>
+
 #include "esp_log.h"
 #include "assert.h"
 #include "esp_timer.h"
@@ -9,19 +13,37 @@
 
 #include "menu_item.h"
 #include "menu_system.h"
+#include "menu.h"
 #include "mathlib.h"
+
 
 static const char TAG[] = "menu-item";
 
-// =============================================================================================
+// ========================================================
 // Basic items
 // ========================================================
+
+MenuItem::MenuItem(std::string _path, int _order)
+  : parent(nullptr)
+  , label()
+  , order(_order)
+{
+  std::filesystem::path path{_path};
+  auto folder = path.parent_path();
+  auto file = path.filename();
+  auto menu = MenuSystem::instance.get_or_create(folder.string());
+  parent = menu;
+  label = file.string();
+}
+
 
 void MenuItem::render() {}
 
 void MenuItem::on_event(MenuEvent evt) {}
 
 void MenuItem::on_modified() {
+  if (parent->is_menu())
+    ((Menu*)parent)->on_item_modified();
   if (MenuSystem::instance.is_visible)
     return;
 
@@ -34,14 +56,15 @@ bool MenuItem::is_menu() { return false; }
 // Floating point
 // ========================================================
 
-const int FloatItem::DEFAULT_STEP = 0.1;
+const int FloatItem::DEFAULT_STEP = 1;
 const int FloatItem::DEFAULT_PRECISION = 2;
-const char FloatItem::DEFAULT_FORMATS[7][16] = {"%.0f", "%.1f", "%.2f", "%.3f", "%.4f", "%.5f", "%.6f"};
+const char FloatItem::DEFAULT_FORMATS[7][8] = {"%.0f", "%.1f", "%.2f", "%.3f", "%.4f", "%.5f", "%.6f"};
+
 
 void FloatItem::render() {
   auto val = getter();
   char buf[32];
-  snprintf(buf, sizeof(buf), format.c_str(), val);
+  snprintf(buf, sizeof(buf), format, val);
   value = buf;
 }
 
@@ -60,7 +83,7 @@ void FloatItem::on_event(MenuEvent evt) {
       auto fp_scale = (int)pow(10, precision);
       auto v = getter() * fp_scale;
       auto d = sign(v) * 0.1;
-      auto s = step * fp_scale;
+      auto s = step;
       setter((float)(floor(v+d) + s * MenuSystem::instance.get_speed()) / fp_scale);
       render();
       on_modified();
@@ -72,7 +95,7 @@ void FloatItem::on_event(MenuEvent evt) {
       auto fp_scale = (int)pow(10, precision);
       auto v = getter() * fp_scale;
       auto d = sign(v) * 0.1;
-      auto s = step * fp_scale;
+      auto s = step;
       setter((float)(floor(v+d) - s * MenuSystem::instance.get_speed()) / fp_scale);
       render();
       on_modified();
@@ -88,7 +111,7 @@ void FloatItem::on_event(MenuEvent evt) {
 }
 
 FloatItem& FloatItem::set_precision(int digits) {
-  assert (digits < ARRAY_COUNT(DEFAULT_FORMATS));
+  assert (digits >= 0 && digits < ARRAY_COUNT(DEFAULT_FORMATS));
   format = DEFAULT_FORMATS[digits];
   precision = digits;
   return *this;
@@ -101,7 +124,7 @@ FloatItem& FloatItem::set_precision(int digits) {
 void IntItem::render() {
   auto val = getter();
   char buf[32];
-  snprintf(buf, sizeof(buf), format.c_str(), val);
+  snprintf(buf, sizeof(buf), format, val);
   value = buf;
 }
 
@@ -142,7 +165,7 @@ void IntItem::on_event(MenuEvent evt) {
 void BoolItem::render() {
   auto val = getter();
   char buf[32];
-  snprintf(buf, sizeof(buf), format.c_str(), val ? "Y" : "N");
+  snprintf(buf, sizeof(buf), format, val ? 'Y' : 'N');
   value = buf;
 }
 
@@ -164,6 +187,44 @@ void BoolItem::on_event(MenuEvent evt) {
 
   case MenuEvent::Left:
     setter(false);
+    render();
+    on_modified();
+    break;
+
+  case MenuEvent::Reset:
+    break;
+
+  default:
+    break;
+  }
+}
+
+// ========================================================
+// String
+// ========================================================
+
+void StringItem::render() {
+  getter(this);
+}
+
+void StringItem::on_event(MenuEvent evt) {
+  switch (evt) {
+  case MenuEvent::Render:
+    render();
+    break;
+
+  case MenuEvent::PressQuad:
+    MenuSystem::instance.toggle_edit();
+    break;
+
+  case MenuEvent::Right:
+    setter(this, evt);
+    render();
+    on_modified();
+    break;
+
+  case MenuEvent::Left:
+    setter(this, evt);
     render();
     on_modified();
     break;
@@ -212,8 +273,4 @@ void ActionItem::on_event(MenuEvent evt) {
   default:
     break;
   }
-}
-
-void ActionItem::on_modified() {
-
 }

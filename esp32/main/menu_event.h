@@ -6,17 +6,19 @@
 // ==============================================================================
 
 enum class MenuEvent {
-  Null,
-  Render,
-  PressQuad,
-  Up,
-  Down,
-  Left,
-  Right,
-  Reset,
-  OpenMenu,
-  CloseMenu,
-  ToggleMenu
+    Null,
+    Render,
+    PressQuad,
+    PressA,
+    PressB,
+    Up,
+    Down,
+    Left,
+    Right,
+    Reset,
+    OpenMenu,
+    CloseMenu,
+    ToggleMenu
 };
 
 enum class MenuResult { Null, Reset, Modified, Called };

@@ -33,7 +33,7 @@ class StepMotorConfig {
   unit_t homing_speed;
   unit_t homing_retract_dist;
   unit_t second_homing_speed;
-  bool homing_dir;
+  int homing_dir;
 
   /** Config */
   double distance_per_step;

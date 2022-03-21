@@ -1,23 +1,33 @@
 #ifndef KINEMATIC_H_
 #define KINEMATIC_H_
 
-#include "step_motor.h"
-#include "step_motor_config.h"
+#include <cstdint>
 #include <string>
 
+#include "step_motor.h"
+#include "step_motor_config.h"
+#include "typeslib.h"
+
 class Kinematic {
-    public:
-        Kinematic();
-        void init();
-        void update(float time);
-        void init_menu(Menu* parent, std::string name);
+        public:
+                Kinematic();
+                void init();
+                void update(float time);
+                void init_menu(std::string path);
 
-        StepMotor xmotor;
-        StepMotor rmotor;
-        StepMotorConfig xconfig;
-        StepMotorConfig rconfig;
+                void move_to(unit_t x, unit_t r, percents_t rpm);
+                void get_default_velocity(unit_t& x, unit_t& r);
+                void get_velocity(unit_t& x, unit_t& r);
+                void get_position(unit_t& x, unit_t& r);
+                void get_velocity(unit_t xdist, unit_t rdist, unit_t& vx, unit_t& vr);
+                void set_origin();
 
-        static Kinematic instance;
+                StepMotor xmotor;
+                StepMotor rmotor;
+                StepMotorConfig xconfig;
+                StepMotorConfig rconfig;
+
+                static Kinematic instance;
 };
 
 

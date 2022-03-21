@@ -47,5 +47,19 @@ There are two step motors X and R and quad encoder with two additional buttons A
 | SCK      |   22 |
 | SDA      |   21 |
 
+# GUI
+
+The display is the menu until we start the winding.
+While we are wining the display shows the stats on the screen.
+Quad button can enable the menu. To disable we have to use menu
+option or one other A or B buttons.
+
+** Table 1: The functions when the winding process started
+|     | Not Winding         | Winding       | Completing                |
+|-----|---------------------|---------------|---------------------------|
+|  Ab | Released            | Hold          | (Click) One turn          |
+|  Bb |                     |               | (Click) Next layer        |
+| Q-+ | Unwind -1 turn      | *ControlSpeed | Wind + 1 turn             |
+|  Qb | Menu                |               | Menu                      |
 
 

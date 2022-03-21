@@ -8,31 +8,35 @@
 /** Submenu or menu */
 class Menu : public MenuItem {
 
- public:
-  typedef void (*menu_delegate)(Menu* menu);
+    public:
 
-  Menu();
-  Menu(Menu* parent, std::string label, int order = 0);
+        Menu();
+        Menu(Menu* parent, std::string label, int order = 0);
 
-  void render();
-  void on_event(MenuEvent evt);
-  void on_modifyed();
-  int get_line();
-  void set_line(int n);
-  Menu &add(MenuItem* item);
-  bool is_menu();
+        void render();
+        void on_event(MenuEvent evt);
+        void on_modifyed();
+        void on_item_modified();
+        int get_line();
+        void set_line(int n);
+        Menu &add(MenuItem* item);
+        bool is_menu();
+        MenuItem* find(std::string label);
 
-  inline int size() { return items.size(); }
-  inline std::vector<MenuItem*> get_items() {return items;}
+        inline int size() { return items.size(); }
+        inline std::vector<MenuItem*> get_items() {return items;}
+        inline MenuItem& get_last() { return *items[line]; }
+        template<typename T>
+        inline T& get_last() { return *((T*)items[line]); }
+        inline int get_version() { return version; }
 
-  menu_delegate on_open;
-  menu_delegate on_close;
+    private:
+        void on_event_to_item(MenuEvent evt);
 
-private:
-  void on_event_to_item(MenuEvent evt);
-
-  std::vector<MenuItem*> items;
-  int line;
+        std::vector<MenuItem*> items;
+        int line;
+        int version;
 };
+
 
 #endif // MENU_H_
