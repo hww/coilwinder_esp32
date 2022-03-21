@@ -11,13 +11,13 @@ There are two step motors X and R and quad encoder with two additional buttons A
 
 **Table 1: The input GPIO pins**
 
-| Function | GPIO |
-|----------|------|
-| QUAD A   |   16 |
-| QUAD B   |   17 |
-| QUAD BUTTON | 32 | 
-| A BUTTON |   33 | 
-| B BUTTON |   15 |
+| Function    | GPIO |
+|-------------|------|
+| QUAD A      |   16 |
+| QUAD B      |   17 |
+| QUAD BUTTON |   32 | 
+| A BUTTON    |   33 | 
+| B BUTTON    |   15 |
 | X HOME POSITION | 35 |
 
 **Table 2: The output gpio pins**
@@ -29,7 +29,7 @@ There are two step motors X and R and quad encoder with two additional buttons A
 | ENA X    |   13 |
 | DIR R    |   14 |
 | STEP R   |   27 |
-| ENA R    |   4 |
+| ENA R    |   4  |
 
 **Table 3: SDCARD pins**
 
@@ -73,6 +73,10 @@ wind by clicking the button A. And comple the layer by button B. So it allow
 | Quad Rotation | Unwind -1 turn      | ControlSpeed      | Wind + 1 turn             |
 | Quad Button   | Menu                |                   | Menu                      |
 
+# Coil winding process
+
+https://en.wikipedia.org/wiki/Coil_winding_technology
+
 ## Round Helical coil
 
 Not implemented yet
@@ -83,7 +87,7 @@ Not implemented yet
 
 ## Round Orthocyclic coil
 
-Implemented
+Implemented all three possible types: equal count, first layer less, first layer more
 
 ## Rectangular Orthocyclic coil
 
