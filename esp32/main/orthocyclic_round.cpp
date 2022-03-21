@@ -40,24 +40,48 @@ void OrthocyclicRound::update()
     if (version != menu->get_version())
         update_config();
 
-    auto_winding = input_get_key(Button::A);
+    if (is_winding())
+    {
+        if (MenuSystem::instance.is_visible) {
+            if (input_get_key_up(Button::A) || input_get_key_up(Button::B)) {
+                MenuSystem::instance.set_visible(false);
+            }
+        } else {
 
-    if (auto_winding) {
-        auto spd = speed+input_get_delta_position();
-        speed = clamp(spd, 1, 100);
-    }
-    if (!one_turn_dir) {
-        if (!auto_winding) {
-            one_turn_dir = input_get_delta_position();
-        }
-        if (!auto_winding_allowed) {
-            if (input_get_key_down(Button::A))
-                one_turn_dir = 1;
+            auto_winding = input_get_key(Button::A);
 
-            if (input_get_key_down(Button::B))
-                change_layer = true;
+            if (auto_winding) {
+                auto spd = speed+input_get_delta_position();
+                speed = clamp(spd, 1, 100);
+            }
+            if (!one_turn_dir) {
+                if (!auto_winding) {
+                    one_turn_dir = input_get_delta_position();
+                }
+                if (!auto_winding_allowed) {
+                    if (input_get_key_down(Button::A))
+                        one_turn_dir = 1;
+
+                    if (input_get_key_down(Button::B))
+                        change_layer = true;
+                }
+            }
+        }
+    } else {
+        auto dir = input_get_delta_position();
+        if (dir!=0) {
+            // Control the X position
+            if (input_get_key(Button::A)) {
+                auto pos = Kinematic::instance.xmotor.get_position();
+                Kinematic::instance.xmotor.set_target_position(pos + dir * 0.1f);
+            }
+            if (input_get_key(Button::B)) {
+                auto pos = Kinematic::instance.rmotor.get_position();
+                Kinematic::instance.rmotor.set_target_position(pos + dir * 0.1f);
+            }
         }
     }
+
 }
 
 
@@ -126,7 +150,7 @@ static int get_crossover_section(int layer) {
  * Get crosover normalized position
  */
 static float get_crossover_norm(int layer) {
-    return get_crossover_section(layer) / num_crossover_sections;
+    return (float)get_crossover_section(layer) / (float)num_crossover_sections;
 }
 
 static float get_normalized_position(float v, float min, float max) {
@@ -195,6 +219,8 @@ void OrthocyclicRound::process()
 {
     // Make current position as (0,0)
     Kinematic::instance.set_origin();
+    Kinematic::instance.set_velocity(wire_od, crossover_size_norm);
+
     // Set the global position x and truns counter 0
     auto posx = 0.0f;
     auto turn = 0;
@@ -219,7 +245,8 @@ void OrthocyclicRound::process()
         auto cross_section = get_crossover_section(layer);
         auto cross_starts = get_crossover_norm(layer);
         auto cross_ends = (cross_starts + crossover_size_norm);
-        ESP_LOGI(TAG, "Crossover section %d range [0 - %f - %f - 1.0]", cross_section, cross_starts, cross_ends);
+        ESP_LOGI(TAG, "Crossover section %d range [%f .. %f]", cross_section, cross_starts, cross_ends);
+
 
         // Add extra turns for the manual direction
         auto max_turns = layer_turns + (manual_direct ? ALLOW_EXTRA_TURNS : 0);
@@ -281,7 +308,7 @@ void OrthocyclicRound::process()
 
                 } else if (one_turn_dir < 0) {
                     // Unwind single turn only for current layer
-                    if (layer_turn > 1) {
+                    if (layer_turn > 0) {
                         // Decrease amount of turns
                         layer_turn--;
                         turn--;

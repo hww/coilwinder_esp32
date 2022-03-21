@@ -47,7 +47,7 @@ void StepMotorAgent::move_to(unit_t pos, unit_t _velocity) {
     moving = true;
     on_step();
     if (log > 0)
-        ESP_LOGI(TAG, "[%d] Moving to %d", motor->id, (int)target);
+        ESP_LOGI(TAG, "[%d] Moving to pos %f (steps  %d)", motor->id, pos, (int)target);
 }
 
 void StepMotorAgent::move_to(steps_t pos, unit_t _velocity) {
@@ -142,17 +142,17 @@ void StepMotor::init_menu(std::string path) {
     // Move to target position
     menu->add(new FloatItem(menu, "pos+-0.1",
                             [&]() { return (float)get_position(); },
-                            [&](int v) { set_target_position((float)v); }));
+                            [&](float v) { set_target_position((unit_t)v); }));
     menu->get_last<FloatItem>().set_step(1).set_precision(1);
     // Move to target position
     menu->add(new FloatItem(menu, "pos+-1.0",
                             [&]() { return (float)get_position(); },
-                            [&](int v) { set_target_position((float)v); }));
+                            [&](float v) { set_target_position((unit_t)v); }));
     menu->get_last<FloatItem>().set_step(10).set_precision(1);
     // Move to target position
     menu->add(new FloatItem(menu, "pos+-10.",
                             [&]() { return (float)get_position(); },
-                            [&](int v) { set_target_position((float)v); }));
+                            [&](float v) { set_target_position((unit_t)v); }));
     menu->get_last<FloatItem>().set_step(100).set_precision(1);
     // Velocity
     menu->add(new FloatItem(menu, "velocity",
@@ -176,23 +176,26 @@ void StepMotor::update(float time) {
 // Utilities
 // ==================================================
 
+unit_t StepMotor::get_position() {
+    return config->steps_to_units(position);
+}
+// {{{
 unit_t StepMotor::get_target_position() {
     return config->steps_to_units(agent.target);
 }
 void StepMotor::set_target_position(unit_t pos) {
     agent.move_to(pos, config->max_velocity);
 }
-unit_t StepMotor::get_position() {
-    return config->steps_to_units(position);
-}
+// }}}
+// {{{
 unit_t StepMotor::get_target_velocity() {
     return target_velocity;
 }
 void StepMotor::set_target_velocity(unit_t vel) {
     target_velocity = vel;
-    if (vel == 0)
-        velocity = 0;
 }
+// }}}
+// {{{
 unit_t StepMotor::get_velocity()
 {
     return velocity;
@@ -201,12 +204,15 @@ unit_t StepMotor::get_default_velocity()
 {
     return config->max_velocity;
 }
+// }}}
+// {{{
 bool StepMotor::get_enable() {
     return hal.get_enable();
 }
 void StepMotor::set_enable(bool v) {
     hal.set_enable(v);
 }
+// }}}
 bool StepMotor::get_endpoint() {
     return hal.get_endpoint();
 }
@@ -229,7 +235,7 @@ bool StepMotor::verify_timer_interval(uint64_t &interval) {
         return false;
     } else if (interval > MAXIMUM_TIMER_INTERVAL_US) {
         interval = MAXIMUM_TIMER_INTERVAL_US;
-        ESP_LOGE(TAG, "[%d] The timer interval is too big", id);
+        ESP_LOGW(TAG, "[%d] The timer interval is too big", id);
         return false;
     } else if (interval < MINIMUM_TIMER_INTERVAL_US) {
         interval = MINIMUM_TIMER_INTERVAL_US;
@@ -248,12 +254,12 @@ void StepMotor::update_velocity(float time) {
     // compute acceleration
     auto accel = config->max_accel * delta_time;
 
-    if (fabs(veldif) < accel) {
+    // apply acceleration to velocity
+    velocity += accel * accdir;
+
+    if (fabs(target_velocity - velocity) < accel) {
         velocity = target_velocity;
     } else {
-        // apply acceleration to velocity
-        velocity += accel * accdir;
-
         // limit velocity
         if (accdir > 0) {
             if (velocity > config->max_velocity)
@@ -266,12 +272,16 @@ void StepMotor::update_velocity(float time) {
 
     // Restart the timer
     if (velocity != old_velocity) {
-        float steps_per_sec = config->units_to_fsteps(abs(velocity));
-        if (log > 3)
-            printf("[%d] steps-per-sec: %f\n", id, steps_per_sec);
-        timer_interval_us = (uint64_t)(((double)1.0 / steps_per_sec) * 1000000);
-        verify_timer_interval(timer_interval_us);
 
+        if (velocity == 0) {
+            timer_interval_us = TIMER_IDLE_DELAY_US;
+        } else {
+            float steps_per_sec = config->units_to_fsteps(abs(velocity));
+            if (log > 3)
+                printf("[%d] steps-per-sec: %f\n", id, steps_per_sec);
+            timer_interval_us = (uint64_t)(((double)1.0 / steps_per_sec) * 1000000);
+            verify_timer_interval(timer_interval_us);
+        }
         if (log > 2)
             printf("[%d] tgt-vel: %f vel: %f interval:  %lf\n", id, target_velocity, velocity,(double)timer_interval_us);
 
@@ -291,7 +301,7 @@ void StepMotor::isr() {
     esp_timer_stop(timer_handle);
     esp_timer_start_once(timer_handle, timer_interval_us);
 
-    if (velocity != 0) {
+    if (agent.moving && velocity!=0) {
         // Set direction and make idle if the pin was changed
         bool ndir = velocity > 0;
         bool odir = hal.get_direction();

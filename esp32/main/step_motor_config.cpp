@@ -15,15 +15,16 @@ void StepMotorConfig::init() {
 }
 /** Convert steps quantity to the real units */
 unit_t StepMotorConfig::steps_to_units(steps_t steps) {
-  float rotations = (float)steps / (float)microsteps_per_turn;
+  double rotations = (double)steps / (double)microsteps_per_turn;
   return rotations * rotation_distance;
 }
 /** Convert steps quantity to the real units */
 steps_t StepMotorConfig::units_to_steps(unit_t units) {
-  float rotations = (float)units / rotation_distance;
-  return (steps_t)(rotations * microsteps_per_turn);
+  double rotations = (double)units / (double)rotation_distance;
+  auto steps = (steps_t)(rotations * microsteps_per_turn);
+  return steps;
 }
 float StepMotorConfig::units_to_fsteps(unit_t units) {
-  float rotations = (float)units / rotation_distance;
+  double rotations = (double)units / rotation_distance;
   return (rotations * microsteps_per_turn);
 }

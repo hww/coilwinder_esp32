@@ -104,13 +104,25 @@ void Kinematic::init_menu(std::string path)
 void Kinematic::get_velocity(unit_t dx, unit_t dr, unit_t& vx, unit_t& vr)
 {
     get_default_velocity(vx,vr);
-    if (dx >= dr) {
-        vr *= (dr / dx);
-    } else {
-        vx *= (dx / dr);
+    vr = 1;
+    // The R velocity is a dominant it try to set
+    // the X velocity match bought of them
+    if (dx != 0) {
+        if (dr == 0)
+            vx = vr;
+        else
+            vx = vr / (abs(dr) / abs(dx));
     }
 }
 
+static unit_t vel_x, vel_r;
+
+void Kinematic::set_velocity(unit_t dx, unit_t dr)
+{
+    get_default_velocity(vel_x,vel_r);
+    vel_r = vel_x * (dr / dx);
+    ESP_LOGI(TAG, "Set velicity for dX:%f dR:%f vX:%f vR:%f", dx, dr, vel_x, vel_r);
+}
 
 void Kinematic::get_default_velocity(unit_t& x, unit_t& r)
 {
@@ -138,19 +150,11 @@ void Kinematic::set_origin()
 
 void  Kinematic::move_to(unit_t tgtx, unit_t tgtr, percents_t rpm)
 {
-    ESP_LOGI(TAG, "move_to X%f R%f F%f", tgtx, tgtr, rpm);
-
-    unit_t posx, posr;
-    get_position(posx,posr);
-    unit_t dx = tgtx-posx;
-    unit_t dr = tgtr-posr;
-
-    unit_t vx, vr;
-    get_velocity(dx, dr, vx, vr);
+    ESP_LOGI(TAG, "move_to X:%f R:%f F:%f", tgtx, tgtr, rpm);
 
     auto vk = rpm/100.0f;
-    xmotor.move_to(tgtx,vx*vk);
-    rmotor.move_to(tgtr,vr*vk);
+    xmotor.move_to(tgtx,vel_x*vk);
+    rmotor.move_to(tgtr,vel_r*vk);
 
     while (xmotor.is_moving() || rmotor.is_moving())
         vTaskDelay(1);

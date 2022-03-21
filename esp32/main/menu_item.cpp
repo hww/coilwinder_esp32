@@ -80,11 +80,14 @@ void FloatItem::on_event(MenuEvent evt) {
 
     case MenuEvent::Right:
     {
-      auto fp_scale = (int)pow(10, precision);
+      auto fp_scale = pow(10, precision);
       auto v = getter() * fp_scale;
-      auto d = sign(v) * 0.1;
+      /*auto d = sign(v) * 0.1;*/
       auto s = step;
-      setter((float)(floor(v+d) + s * MenuSystem::instance.get_speed()) / fp_scale);
+      auto spd = MenuSystem::instance.get_speed();
+      auto v1 = ((float)(round(v) + s * spd) / fp_scale);
+      //printf("scaled: %f v: %f step: %f spd: %f -> %f\n", fp_scale, v, s, spd, v1);
+      setter(v1);
       render();
       on_modified();
     }
@@ -92,11 +95,14 @@ void FloatItem::on_event(MenuEvent evt) {
 
     case MenuEvent::Left:
     {
-      auto fp_scale = (int)pow(10, precision);
+      auto fp_scale = pow(10, precision);
       auto v = getter() * fp_scale;
-      auto d = sign(v) * 0.1;
+      /*auto d = sign(v) * 0.1;*/
       auto s = step;
-      setter((float)(floor(v+d) - s * MenuSystem::instance.get_speed()) / fp_scale);
+      auto spd = MenuSystem::instance.get_speed();
+      auto v1 = ((float)(round(v) - s * spd) / fp_scale);
+      //printf("scaled: %f v: %f step: %f spd: %f -> %f\n", fp_scale, v, s, spd, v1);
+      setter(v1);
       render();
       on_modified();
     }
