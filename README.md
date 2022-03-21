@@ -7,7 +7,7 @@ The coil winder based on esp32 and two step motors
 
 # Project roadmap
 
-- [x] Display SSD1306 
+- [X] Display SSD1306 
 - [x] Step motors driver
 - [x] Input buttons and quad encoder
 - [x] The menu system  
