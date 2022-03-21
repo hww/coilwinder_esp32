@@ -112,7 +112,8 @@ static const float sin60 = 0.86602540378;
  */
 static const int num_crossover_sections = 24;
 static const int max_crossover_section = num_crossover_sections - 1;
-static const float crossover_size_norm = 1.0 / num_crossover_sections;
+static const float crossover_size_norm = 1.0 / (float)num_crossover_sections;
+
 /**
  * Get the position of cross over for given layer
  * The first layer starts from the last secrtion (23)
@@ -218,7 +219,7 @@ void OrthocyclicRound::process()
         auto cross_section = get_crossover_section(layer);
         auto cross_starts = get_crossover_norm(layer);
         auto cross_ends = (cross_starts + crossover_size_norm);
-        ESP_LOGI(TAG, "Crossover range [%f:%f]", cross_starts, cross_ends);
+        ESP_LOGI(TAG, "Crossover section %d range [0 - %f - %f - 1.0]", cross_section, cross_starts, cross_ends);
 
         // Add extra turns for the manual direction
         auto max_turns = layer_turns + (manual_direct ? ALLOW_EXTRA_TURNS : 0);
@@ -313,6 +314,7 @@ void OrthocyclicRound::process()
             }
         } while (layer_turn<max_turns && !change_layer);
 
+        ESP_LOGW(TAG, "Change the layerr");
         // Change layer and direction
         posx += (odd_layer ? xshift_odd : xshift_even);
         Kinematic::instance.move_to(posx, turn, (float)speed);
