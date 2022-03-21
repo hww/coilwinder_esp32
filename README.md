@@ -79,7 +79,7 @@ autowinding will stop before the end of layer. And the operator can make one
 wind by clicking the button A. And comple the layer by button B. So it allow 
 
 **Table 1: The functions when the winding is not started**
-| Button        |                                 |
+| Button        | Function                        |
 |---------------|---------------------------------|
 |  A            | Press with Quad endcoder move X |
 |  B            | Press with Quad endcoder move R |
