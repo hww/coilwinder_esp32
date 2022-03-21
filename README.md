@@ -49,17 +49,45 @@ There are two step motors X and R and quad encoder with two additional buttons A
 
 # GUI
 
-The display is the menu until we start the winding.
-While we are wining the display shows the stats on the screen.
-Quad button can enable the menu. To disable we have to use menu
+The display is working in the menu mode until the winding process is started.
+While the winding run the display shows the stats on the screen. When winding 
 option or one other A or B buttons.
 
-** Table 1: The functions when the winding process started
-|     | Not Winding         | Winding       | Completing                |
-|-----|---------------------|---------------|---------------------------|
-|  Ab | Released            | Hold          | (Click) One turn          |
-|  Bb |                     |               | (Click) Next layer        |
-| Q-+ | Unwind -1 turn      | *ControlSpeed | Wind + 1 turn             |
-|  Qb | Menu                |               | Menu                      |
+The auto winding run while A button is pressed in the other case the winder in 
+a pause state. 
+
+- In the autowinding mode the quad encoder change the speed. 
+- In the pause mode the quad encoder will wind or unwind one turn.
+- In the pause mode the quad button will activate menu mode.
+
+There is the special winding mode "Manual Completing". This mode should help 
+more precisly complete the layer and start the next one. With this mode the 
+autowinding will stop before the end of layer. And the operator can make one 
+wind by clicking the button A. And comple the layer by button B. So it allow 
+
+**Table 1: The functions when the winding process started**
+| Button        | Not Winding         | Autowinding       | Manual Completing         |
+|---------------|---------------------|-------------------|---------------------------|
+|  A            | Released            | Hold              | (Click) One turn          |
+|  B            |                     |                   | (Click) Next layer        |
+| Quad Rotation | Unwind -1 turn      | ControlSpeed      | Wind + 1 turn             |
+| Quad Button   | Menu                |                   | Menu                      |
+
+## Round Helical coil
+
+Not implemented yet
+
+## Rectangular Helical coil
+
+Not implemented yet
+
+## Round Orthocyclic coil
+
+Implemented
+
+## Rectangular Orthocyclic coil
+
+Not implemented yet
+
 
 
