@@ -65,13 +65,20 @@ more precisly complete the layer and start the next one. With this mode the
 autowinding will stop before the end of layer. And the operator can make one 
 wind by clicking the button A. And comple the layer by button B. So it allow 
 
-**Table 1: The functions when the winding process started**
+**Table 1: The functions when the winding is not started**
+| Button        |                                 |
+|---------------|---------------------------------|
+|  A            | Press with Quad endcoder move X |
+|  B            | Press with Quad endcoder move R |
+
+**Table 2: The functions when the winding process started**
 | Button        | Not Winding         | Autowinding       | Manual Completing         |
 |---------------|---------------------|-------------------|---------------------------|
 |  A            | Released            | Hold              | (Click) One turn          |
 |  B            |                     |                   | (Click) Next layer        |
 | Quad Rotation | Unwind -1 turn      | ControlSpeed      | Wind + 1 turn             |
 | Quad Button   | Menu                |                   | Menu                      |
+
 
 # Coil winding process
 
