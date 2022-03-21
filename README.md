@@ -17,8 +17,9 @@ The coil winder based on esp32 and two step motors
 - [ ] The orthocyclic rect coil winder 
 - [ ] The helica round coil winder 
 - [ ] The helica rect coil winder 
+- [ ] Save/Load settings 
 
-# ESP GPIOS
+# The GPIO usage
 
 There are two step motors X and R and quad encoder with two additional buttons A,B
 
