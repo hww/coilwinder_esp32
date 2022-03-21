@@ -7,12 +7,12 @@ The coil winder based on esp32 and two step motors
 
 # Project roadmap
 
-- [v] Display SSD1306 
-- [v] Step motors driver
-- [v] Input buttons and quad encoder
-- [v] The menu system  
-- [v] Move to home 
-- [v] The orthocyclic round coil winder 
+- [x] Display SSD1306 
+- [x] Step motors driver
+- [x] Input buttons and quad encoder
+- [x] The menu system  
+- [x] Move to home 
+- [x] The orthocyclic round coil winder 
 - [ ] Better display support
 - [ ] The orthocyclic rect coil winder 
 - [ ] The helica round coil winder 
