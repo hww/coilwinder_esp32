@@ -5,6 +5,19 @@ The coil winder based on esp32 and two step motors
 1. There is another project based on GRBLhttps://github.com/hww/coil_winder_grbl_esp32
 2. This project does not require a computer to wind the coil and has more manual control over process.
 
+# Project roadmap
+
+- [v] Display SSD1306 
+- [v] Step motors driver
+- [v] Input buttons and quad encoder
+- [v] The menu system  
+- [v] Move to home 
+- [v] The orthocyclic round coil winder 
+- [ ] Better display support
+- [ ] The orthocyclic rect coil winder 
+- [ ] The helica round coil winder 
+- [ ] The helica rect coil winder 
+
 # ESP GPIOS
 
 There are two step motors X and R and quad encoder with two additional buttons A,B
