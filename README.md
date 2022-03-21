@@ -11,13 +11,13 @@ There are two step motors X and R and quad encoder with two additional buttons A
 
 **Table 1: The input GPIO pins**
 
-| Function | GPIO |
-|----------|------|
-| QUAD A   |   16 |
-| QUAD B   |   17 |
-| QUAD BUTTON | 32 | 
-| A BUTTON |   33 | 
-| B BUTTON |   15 |
+| Function    | GPIO |
+|-------------|------|
+| QUAD A      |   16 |
+| QUAD B      |   17 |
+| QUAD BUTTON |   32 | 
+| A BUTTON    |   33 | 
+| B BUTTON    |   15 |
 | X HOME POSITION | 35 |
 
 **Table 2: The output gpio pins**
@@ -29,7 +29,7 @@ There are two step motors X and R and quad encoder with two additional buttons A
 | ENA X    |   13 |
 | DIR R    |   14 |
 | STEP R   |   27 |
-| ENA R    |   4 |
+| ENA R    |   4  |
 
 **Table 3: SDCARD pins**
 
@@ -49,17 +49,56 @@ There are two step motors X and R and quad encoder with two additional buttons A
 
 # GUI
 
-The display is the menu until we start the winding.
-While we are wining the display shows the stats on the screen.
-Quad button can enable the menu. To disable we have to use menu
+The display is working in the menu mode until the winding process is started.
+While the winding run the display shows the stats on the screen. When winding 
 option or one other A or B buttons.
 
-** Table 1: The functions when the winding process started
-|     | Not Winding         | Winding       | Completing                |
-|-----|---------------------|---------------|---------------------------|
-|  Ab | Released            | Hold          | (Click) One turn          |
-|  Bb |                     |               | (Click) Next layer        |
-| Q-+ | Unwind -1 turn      | *ControlSpeed | Wind + 1 turn             |
-|  Qb | Menu                |               | Menu                      |
+The auto winding run while A button is pressed in the other case the winder in 
+a pause state. 
+
+- In the autowinding mode the quad encoder change the speed. 
+- In the pause mode the quad encoder will wind or unwind one turn.
+- In the pause mode the quad button will activate menu mode.
+
+There is the special winding mode "Manual Completing". This mode should help 
+more precisly complete the layer and start the next one. With this mode the 
+autowinding will stop before the end of layer. And the operator can make one 
+wind by clicking the button A. And comple the layer by button B. So it allow 
+
+**Table 1: The functions when the winding is not started**
+| Button        |                                 |
+|---------------|---------------------------------|
+|  A            | Press with Quad endcoder move X |
+|  B            | Press with Quad endcoder move R |
+
+**Table 2: The functions when the winding process started**
+| Button        | Not Winding         | Autowinding       | Manual Completing         |
+|---------------|---------------------|-------------------|---------------------------|
+|  A            | Released            | Hold              | (Click) One turn          |
+|  B            |                     |                   | (Click) Next layer        |
+| Quad Rotation | Unwind -1 turn      | ControlSpeed      | Wind + 1 turn             |
+| Quad Button   | Menu                |                   | Menu                      |
+
+
+# Coil winding process
+
+https://en.wikipedia.org/wiki/Coil_winding_technology
+
+## Round Helical coil
+
+Not implemented yet
+
+## Rectangular Helical coil
+
+Not implemented yet
+
+## Round Orthocyclic coil
+
+Implemented all three possible types: equal count, first layer less, first layer more
+
+## Rectangular Orthocyclic coil
+
+Not implemented yet
+
 
 
