@@ -150,6 +150,16 @@ void MenuSystem::toggle_edit() {
 
 /** The event for menu list  */
 void MenuSystem::on_event(MenuEvent evt) {
+
+  if (is_edit) {
+    modification_speed = input_get_key(Button::B) ? 10 : 1;
+  } else {
+    modification_speed = 1;
+    // do not change menu if the A or B pressed
+    if (input_get_key(Button::B) || input_get_key(Button::A))
+      return;
+  }
+
   for (auto &item : event_listeners) {
     item(evt);
   }
@@ -163,7 +173,6 @@ void MenuSystem::on_event(MenuEvent evt) {
       return;
     }
   }
-
 
   if (is_visible) {
     switch (evt) {

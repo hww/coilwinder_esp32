@@ -3,6 +3,7 @@
 #include "config.h"
 #include "kinematic.h"
 #include "menu_export.h"
+#include "menu_item.h"
 #include "step_motor_config.h"
 
 
@@ -13,6 +14,8 @@ Kinematic Kinematic::instance;
 static bool motors_enabled;
 
 Kinematic::Kinematic()
+    : rvelocity_k(0.7f)
+    , log(0)
 {
 }
 
@@ -79,6 +82,16 @@ void Kinematic::init()
 void Kinematic::update(float time) {
     xmotor.update(time);
     rmotor.update(time);
+    if (log>2) {
+        printf("movx:%d movr:%d vx:%f vr:%f px:%f pr:%f\n",
+               xmotor.is_moving(),
+               rmotor.is_moving(),
+               xmotor.get_velocity(),
+               rmotor.get_velocity(),
+               xmotor.get_position(),
+               rmotor.get_position()
+        );
+    }
 }
 
 static void toggle_drivers(MenuItem* item, MenuEvent evt) {
@@ -93,35 +106,26 @@ static void start_homing_task(MenuItem* item, MenuEvent evt) {
 
 void Kinematic::init_menu(std::string path)
 {
-    auto menu = MenuSystem::instance.get_or_create(path);
+    auto menu = MenuSystem::instance.root;
     menu->add(new ActionItem(menu, "m-onoff", &toggle_drivers));
     menu->add(new ActionItem(menu, "homing", &start_homing_task));
     xmotor.init_menu("mot-x");
     rmotor.init_menu("mot-r");
-}
 
-/** Get the X and R velocity for given X and R delta distance */
-void Kinematic::get_velocity(unit_t dx, unit_t dr, unit_t& vx, unit_t& vr)
-{
-    get_default_velocity(vx,vr);
-    vr = 1;
-    // The R velocity is a dominant it try to set
-    // the X velocity match bought of them
-    if (dx != 0) {
-        if (dr == 0)
-            vx = vr;
-        else
-            vx = vr / (abs(dr) / abs(dx));
-    }
+    auto kmenu = MenuSystem::instance.get_or_create(path);
+    kmenu->add(new IntItem(menu, "log",
+                            [&]()->int{return log;},
+                            [&](int v) {log = v; }));
+    kmenu->add(new FloatItem(menu, "rvel-k",
+                            [&]()->float{return rvelocity_k;},
+                            [&](float v) { rvelocity_k = v; }));
 }
-
-static unit_t vel_x, vel_r;
 
 void Kinematic::set_velocity(unit_t dx, unit_t dr)
 {
-    get_default_velocity(vel_x,vel_r);
-    vel_r = vel_x * (dr / dx);
-    ESP_LOGI(TAG, "Set velicity for dX:%f dR:%f vX:%f vR:%f", dx, dr, vel_x, vel_r);
+    get_default_velocity(xvelocity,rvelocity);
+    rvelocity = xvelocity * (dr / dx) * rvelocity_k;
+    ESP_LOGI(TAG, "Set velicity for dX:%f dR:%f vX:%f vR:%f", dx, dr, xvelocity, rvelocity);
 }
 
 void Kinematic::get_default_velocity(unit_t& x, unit_t& r)
@@ -153,9 +157,9 @@ void  Kinematic::move_to(unit_t tgtx, unit_t tgtr, percents_t rpm)
     ESP_LOGI(TAG, "move_to X:%f R:%f F:%f", tgtx, tgtr, rpm);
 
     auto vk = rpm/100.0f;
-    xmotor.move_to(tgtx,vel_x*vk);
-    rmotor.move_to(tgtr,vel_r*vk);
+    xmotor.move_to(tgtx,xvelocity*vk);
+    rmotor.move_to(tgtr,rvelocity*vk);
 
     while (xmotor.is_moving() || rmotor.is_moving())
-        vTaskDelay(1);
+        vTaskDelay(1/portTICK_PERIOD_MS);
 }

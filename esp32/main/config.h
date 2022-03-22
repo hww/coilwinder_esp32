@@ -53,7 +53,7 @@ extern float g_speed;
 #define MOTOR_X_ENABLE_PIN_REVERSE 1
 #define MOTOR_X_ENDSTOP_PIN_REVERSE 0
 #define MOTOR_X_MAX_VELOCITY 20/*mm/s*/
-#define MOTOR_X_MAX_ACCELERATION 100/*mm/s^2* usualy velocity x 5*/
+#define MOTOR_X_MAX_ACCELERATION (MOTOR_X_MAX_VELOCITY*4) /*mm/s^2* usualy velocity x 5*/
 #define MOTOR_X_ROTATION_DISTANCE 2/*mm*/
 #define MOTOR_X_MICROSTEPS 8
 #define MOTOR_X_POSITION_MIN 0
@@ -73,15 +73,15 @@ extern float g_speed;
 #define MOTOR_R_ENABLE_PIN_REVERSE 1
 #define MOTOR_R_ENDSTOP_PIN_REVERSE 0
 #define MOTOR_R_MAX_VELOCITY 5/*turns/s*/
-#define MOTOR_R_MAX_ACCELERATION 25/*turns/s^2 usualy velocity x 5*/
+#define MOTOR_R_MAX_ACCELERATION (MOTOR_R_MAX_VELOCITY*4)/*turns/s^2 usualy velocity x 5*/
 #define MOTOR_R_ROTATION_DISTANCE 1/*turn*/
 #define MOTOR_R_MICROSTEPS 8
 #define MOTOR_R_POSITION_MIN 0
 #define MOTOR_R_POSITION_ENDSTOP 0
 #define MOTOR_R_POSITION_MAX 100
-#define MOTOR_R_HOMING_SPEED 100
-#define MOTOR_R_HOMING_RETRACT_DIST 50
-#define MOTOR_R_SECOND_HOMING_SPEED 50
+#define MOTOR_R_HOMING_SPEED MOTOR_R_MAX_VELOCITY
+#define MOTOR_R_HOMING_RETRACT_DIST 5
+#define MOTOR_R_SECOND_HOMING_SPEED 5
 #define MOTOR_R_HOMING_DIR (-1)
 
 // ==============================================================

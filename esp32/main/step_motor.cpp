@@ -161,7 +161,7 @@ void StepMotor::init_menu(std::string path) {
     menu->get_last<FloatItem>().set_step(1).set_precision(0);
     // Log
     menu->add(new IntItem(menu, "log",
-                          [&]() { return log; },
+                          [&] () -> int { return log; },
                           [&](int v) { log = v; }));
 }
 
@@ -223,6 +223,9 @@ bool StepMotor::is_moving_home() {
     return get_direction(target_velocity) == get_direction(config->homing_dir);
 }
 
+unit_t StepMotor::get_acceleration() {
+    return config->max_accel;
+}
 // ==================================================
 // Velocity controller
 // ==================================================

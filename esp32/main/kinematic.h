@@ -20,14 +20,16 @@ class Kinematic {
                 void get_velocity(unit_t& x, unit_t& r);
                 void set_velocity(unit_t dx, unit_t dr);
                 void get_position(unit_t& x, unit_t& r);
-                void get_velocity(unit_t xdist, unit_t rdist, unit_t& vx, unit_t& vr);
                 void set_origin();
 
                 StepMotor xmotor;
                 StepMotor rmotor;
                 StepMotorConfig xconfig;
                 StepMotorConfig rconfig;
-
+                unit_t xvelocity;
+                unit_t rvelocity;
+                float rvelocity_k;
+                int log;
                 static Kinematic instance;
 };
 

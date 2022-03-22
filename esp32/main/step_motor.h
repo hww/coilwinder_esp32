@@ -66,6 +66,7 @@ class StepMotor  {
     void set_target_velocity(unit_t vel);
     bool get_enable();
     void set_enable(bool v);
+    unit_t get_acceleration();
     bool get_endpoint();
     bool is_moving_home();
     bool is_moving();

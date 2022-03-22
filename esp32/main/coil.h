@@ -21,10 +21,11 @@ class Coil
                 virtual void stop() = 0;
                 virtual void update() = 0;
                 virtual void update_config() = 0;
+                virtual void inspect();
 
-                float bob_len;
                 float wire_od;
                 int wire_turns;
+                int wire_layers;
                 int version;
                 Menu* menu;
 };
@@ -40,8 +41,11 @@ class RoundCoil : public Coil
                 RoundCoil();
 
                 virtual void init_menu(std::string path);
+                virtual void inspect();
 
-                float coil_id;
+                float bob_len;
+                float bob_id;
+                float bob_od;
 };
 
 /** Any rectanguar coil */

@@ -37,9 +37,11 @@ class OrthocyclicRound : public RoundCoil
 
         enum class Style { Equal, FirstShort, FirstLong };
 
+        int start_layer;
         Style style;
         bool fill_last;
         bool manual_direct;
+        int num_csections;
         // Slow accelerate for this amount of turns
         int accelerate_turns;
         // Slow decelerate this amount of turns
@@ -59,16 +61,20 @@ class OrthocyclicRound : public RoundCoil
         float winding_len;
         float winding_h;
         float winding_h_cross;
-
+        float winding_gap;
+        float better_wire_od;
         bool pause;
 private:
 
+        float crossover_size_norm();
+        int get_crossover_section_num(int layer);
+        float get_crossover_norm(int layer);
         unit_t get_velocity_factor(int layer_turn, int layer_turns);
+        void update_coil_od(int layers);
 
         /** Thread */
         TaskHandle_t winding_task_handle;
-        bool auto_winding;
-        bool auto_winding_allowed;
+        bool wind_extra_turns;
         int one_turn_dir;
         bool change_layer;
         int speed;

@@ -2,6 +2,7 @@
 #include <math.h>
 #include <type_traits>
 
+#include "coil.h"
 #include "config.h"
 #include "input_controller.h"
 #include "menu_system.h"
@@ -22,6 +23,7 @@ OrthocyclicRound::OrthocyclicRound()
     , style(Style::Equal)
     , fill_last(true)
     , manual_direct(true)
+    , num_csections(12)
     , accelerate_turns(ACCELERATE_TURNS)
     , deccelerate_turns(DECELERATE_TURNS)
     , stop_before(STOP_BEFORE_TURNS)
@@ -29,9 +31,12 @@ OrthocyclicRound::OrthocyclicRound()
     , turns_even(0)
     , turns_last(0)
     , total_turns(0)
-    , speed(100)
+    , speed(50)
 {
-
+    wire_od = 0.45;
+    bob_len = 23.9;
+    bob_id = 24.0;
+    bob_od = 33.7;
 }
 
 /** Update with fixed frequency */
@@ -42,42 +47,53 @@ void OrthocyclicRound::update()
 
     if (is_winding())
     {
+        // If the winding is tarted there are two possible opptions
+        //
+        // 1. When the menu is open and visible the buttons A and B
+        //    doing exit from the menu.
+        // 2. When menu is closed
         if (MenuSystem::instance.is_visible) {
             if (input_get_key_up(Button::A) || input_get_key_up(Button::B)) {
                 MenuSystem::instance.set_visible(false);
             }
         } else {
-
-            auto_winding = input_get_key(Button::A);
-
-            if (auto_winding) {
-                auto spd = speed+input_get_delta_position();
-                speed = clamp(spd, 1, 100);
-            }
-            if (!one_turn_dir) {
-                if (!auto_winding) {
-                    one_turn_dir = input_get_delta_position();
-                }
-                if (!auto_winding_allowed) {
+            if (one_turn_dir == 0)
+            {
+                if (!wind_extra_turns) {
+                    // we do not winding extra turns then allow
+                    // press and hold the button A
+                    if (input_get_key(Button::A))
+                        one_turn_dir = 1;
+                } else {
+                    // We are winding extra turns, be more careful
+                    // and allow only step by step mode
                     if (input_get_key_down(Button::A))
                         one_turn_dir = 1;
 
                     if (input_get_key_down(Button::B))
                         change_layer = true;
                 }
+
+                if (one_turn_dir == 0 && change_layer == false) {
+                    one_turn_dir = input_get_delta_position();
+                }
             }
         }
     } else {
-        auto dir = input_get_delta_position();
-        if (dir!=0) {
-            // Control the X position
-            if (input_get_key(Button::A)) {
-                auto pos = Kinematic::instance.xmotor.get_position();
-                Kinematic::instance.xmotor.set_target_position(pos + dir * 0.1f);
-            }
-            if (input_get_key(Button::B)) {
-                auto pos = Kinematic::instance.rmotor.get_position();
-                Kinematic::instance.rmotor.set_target_position(pos + dir * 0.1f);
+        if (!MenuSystem::instance.is_edit) {
+            // When menu is not in edit mode and the winding
+            // was not started -- just control the positions
+            // of the motors X and R
+            auto dir = input_get_delta_position();
+            if (dir!=0) {
+                if (input_get_key(Button::A)) {
+                    auto pos = Kinematic::instance.xmotor.get_position();
+                    Kinematic::instance.xmotor.set_target_position(pos + dir * 0.1f);
+                }
+                if (input_get_key(Button::B)) {
+                    auto pos = Kinematic::instance.rmotor.get_position();
+                    Kinematic::instance.rmotor.set_target_position(pos + dir * 0.1f);
+                }
             }
         }
     }
@@ -114,6 +130,9 @@ void OrthocyclicRound::init_menu(std::string path)
                              [&] (StringItem* item, MenuEvent evt) { on_update_style(item, evt); }));
     menu->add(new BoolItem(menu, "fill-last", [&] () -> bool { return fill_last; },
                            [&](bool v) { fill_last = v; }));
+    menu->add(new IntItem(menu, "num-csect",
+                          [&] () -> int { return num_csections; },
+                          [&] (int v) { num_csections = v; }));
     // Read only settings
     menu->add(new IntItem(menu, "-turns-odd", [&] () -> int { return turns_odd; }, nullptr));
     menu->add(new IntItem(menu, "-turns-even", [&] () -> int { return turns_even; }, nullptr));
@@ -134,27 +153,25 @@ static const float sin60 = 0.86602540378;
  *  The size of crossover is 15 degrees, so there will be 24
  *  possible positions.
  */
-static const int num_crossover_sections = 24;
-static const int max_crossover_section = num_crossover_sections - 1;
-static const float crossover_size_norm = 1.0 / (float)num_crossover_sections;
+float OrthocyclicRound::crossover_size_norm() {return 1.0 / (float)num_csections; }
 
 /**
  * Get the position of cross over for given layer
  * The first layer starts from the last secrtion (23)
  */
-static int get_crossover_section(int layer) {
-    return (num_crossover_sections - layer) % num_crossover_sections;
+int OrthocyclicRound::get_crossover_section_num(int layer) {
+    return (num_csections - layer) % num_csections;
 }
 
 /**
  * Get crosover normalized position
  */
-static float get_crossover_norm(int layer) {
-    return (float)get_crossover_section(layer) / (float)num_crossover_sections;
+float OrthocyclicRound::get_crossover_norm(int layer) {
+    return (float)get_crossover_section_num(layer) / (float)num_csections;
 }
 
 static float get_normalized_position(float v, float min, float max) {
-    return (v-min) / (max-min);
+    return clamp01((v-min) / (max-min));
 }
 
 /**
@@ -162,9 +179,9 @@ static float get_normalized_position(float v, float min, float max) {
  **/
 unit_t OrthocyclicRound::get_velocity_factor(int layer_turn, int layer_turns) {
     if (layer_turn<=accelerate_turns) {
-        return clamp01(get_normalized_position(layer_turn, 0, (float)accelerate_turns));
+        return get_normalized_position(layer_turn, 0, (float)accelerate_turns);
     } else if (layer_turn >= (layer_turns-deccelerate_turns+1)) {
-        return clamp01(get_normalized_position(layer_turn, (float)(layer_turns-deccelerate_turns+1), (float)layer_turns));
+        return 1-get_normalized_position(layer_turn, (float)(layer_turns-deccelerate_turns+1), (float)layer_turns);
     } else {
         return (unit_t)1.0f;
     }
@@ -184,6 +201,15 @@ static void display_status(int turn, int turns, int layer, int layers, float x, 
     std::snprintf(buf, 16, "X%.2f F%.1f", x, rpm);
     display_print(0,1, buf);
     display_update();
+}
+
+
+static void display_message(const char* msg) {
+    MenuSystem::instance.set_visible(false);
+    display_clear();
+    display_print(0,0, msg);
+    display_update();
+    ESP_LOGI(TAG, "MSG '%s'",msg);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -217,13 +243,17 @@ static void display_status(int turn, int turns, int layer, int layers, float x, 
 
 void OrthocyclicRound::process()
 {
+    MenuSystem::instance.set_visible(false);
+
     // Make current position as (0,0)
     Kinematic::instance.set_origin();
-    Kinematic::instance.set_velocity(wire_od, crossover_size_norm);
+    Kinematic::instance.set_velocity(wire_od, crossover_size_norm());
 
     // Set the global position x and truns counter 0
     auto posx = 0.0f;
     auto turn = 0;
+    // The layer's turns iterator
+    int layer_turn = 0;
 
     // The layer iterator
     for (auto layer = 1; layer<=layers; layer++) {
@@ -231,7 +261,7 @@ void OrthocyclicRound::process()
         // At each layer activate autowinding feature
         // and defautivate 'change direction' and
         // 'single turn'
-        auto_winding_allowed = true;
+        wind_extra_turns = false;
         change_layer = false;
         one_turn_dir = 0;
 
@@ -242,48 +272,38 @@ void OrthocyclicRound::process()
         auto direction = layer & 1;
 
         // Crossover position should change every layer
-        auto cross_section = get_crossover_section(layer);
+        auto cross_section = get_crossover_section_num(layer);
         auto cross_starts = get_crossover_norm(layer);
-        auto cross_ends = (cross_starts + crossover_size_norm);
+        auto cross_ends = (cross_starts + crossover_size_norm());
         ESP_LOGI(TAG, "Crossover section %d range [%f .. %f]", cross_section, cross_starts, cross_ends);
 
 
         // Add extra turns for the manual direction
         auto max_turns = layer_turns + (manual_direct ? ALLOW_EXTRA_TURNS : 0);
         // Deactivate auto-winding before end of layer
-        auto auto_stop_at = layer_turns - stop_before + 1;
+        auto auto_stop_at = layer_turns - stop_before;
 
-        // The layer's turns iterator
-        int layer_turn = 0;
         do {
 
             // Wait operator's control.
             while (true) {
-                if (auto_winding_allowed) {
-                    // The autowinding feature <enabled>
-                    // Waits the 'auto_winding' only.
-                    if (auto_winding)
-                        break;
-                } else  {
-                    // The autowinding feature <disabled>
-                    // The operator can start the one turn
-                    // or to complete the layer
-                    if (one_turn_dir || change_layer)
-                        break;
-                }
+                // The operator can start the one turn
+                // or to complete the layer
+                if (one_turn_dir || change_layer)
+                    break;
                 vTaskDelay(1/portTICK_PERIOD_MS);
             }
 
             if (!change_layer) {
                 // There is no request to change the layer
                 // make single turen forward or backaward
-                if (auto_winding || one_turn_dir > 0) {
+                if (one_turn_dir > 0) {
                     // The forward turn
                     turn++;
                     layer_turn++;
                     // Get velocity for current turn
                     auto v = get_velocity_factor(layer_turn, layer_turns);
-                    auto rpm = lerp(v, 20.0f, (float)speed);
+                    auto rpm = lerp(v, ((float)speed)/2, (float)speed);
                     // Increment or decrement X position and remeber previous
                     auto oldx = posx;
                     posx += (direction ? wire_od : -wire_od);
@@ -295,7 +315,7 @@ void OrthocyclicRound::process()
                         // crossover at the begin of turn
                         Kinematic::instance.move_to(posx, ((turn-1) + cross_ends), rpm);
                         Kinematic::instance.move_to(posx, turn, rpm);
-                    } else if (cross_section == max_crossover_section) {
+                    } else if (cross_section == (num_csections-1)) {
                         // crossover at the end of turn
                         Kinematic::instance.move_to(oldx, ((turn-1) + cross_starts), rpm);
                         Kinematic::instance.move_to(posx, turn, rpm);
@@ -314,7 +334,7 @@ void OrthocyclicRound::process()
                         turn--;
                         // Get the velocity
                         auto v = get_velocity_factor(layer_turn, layer_turns);
-                        auto rpm = lerp(v, 20.0f, (float)speed);
+                        auto rpm = lerp(v, 20.0f, (float)speed/2);
 
                         // Increment or decrement X pposition
                         posx -= (direction ? wire_od : -wire_od);
@@ -325,27 +345,47 @@ void OrthocyclicRound::process()
                         // Perform operation
                         Kinematic::instance.move_to(posx, turn, rpm);
                     } else {
-                        ESP_LOGW(TAG, "Can't unwind more than the current layer");
+                        one_turn_dir = 0;
+                        wind_extra_turns = false;
+                        if (layer > 2) {
+                            layer--;
+                            ESP_LOGW(TAG, "Goto previous layer");
+                            display_status(turn, total_turns, layer, layers, posx, 0);
+                            goto CHANGE_LAYER_BACKWARD;
+                        } else {
+                            ESP_LOGW(TAG, "Unwind all coil");
+                            goto EXIT;
+                        }
                     }
                 }
                 // Deactivate single turn
                 one_turn_dir = 0;
 
                 // Stop autowinding for manual reversing
-                if (manual_direct && layer_turn >= auto_stop_at) {
-                    auto_winding_allowed = false;
-                    auto_winding = false;
+                if (manual_direct) {
+                    wind_extra_turns = layer_turn >= auto_stop_at;
+                    if (wind_extra_turns)
+                        display_message("Manual dir");
                 }
 
-                vTaskDelay(1/portTICK_PERIOD_MS);
+                //vTaskDelay(1/portTICK_PERIOD_MS);
             }
         } while (layer_turn<max_turns && !change_layer);
 
-        ESP_LOGW(TAG, "Change the layerr");
-        // Change layer and direction
+        ESP_LOGW(TAG, "Change the layer forward");
+        layer_turn = 0;
         posx += (odd_layer ? xshift_odd : xshift_even);
-        Kinematic::instance.move_to(posx, turn, (float)speed);
+        goto AFTER_CHANGE_LAYER;
+
+    CHANGE_LAYER_BACKWARD:
+        ESP_LOGW(TAG, "Change the layer forward");
+        layer_turn = layer_turns;
+        posx -= (odd_layer ? xshift_odd : xshift_even);
+
+    AFTER_CHANGE_LAYER:
+        Kinematic::instance.move_to(posx, turn, (float)speed/2);
     }
+EXIT:
     printf("\nCOMPLETE %d LAYERS AND %d TURNS\n", layers, turn);
     winding_task_handle = NULL;
     vTaskDelete(NULL);
@@ -375,6 +415,17 @@ void OrthocyclicRound::stop() {
         vTaskDelete(winding_task_handle);
         winding_task_handle = NULL;
     }
+}
+
+void OrthocyclicRound::update_coil_od(int _layers)
+{
+    layers = _layers;
+    // Calculation of the winding height in the layer cross
+    winding_h = wire_od * (1 + (sin60 * (_layers - 1)));
+    // section area just add 5%
+    winding_h_cross = winding_h * 1.05;
+    coil_od = bob_id + (2 * winding_h);
+    coil_od_cross = bob_id + (2 * winding_h_cross);
 }
 
 void OrthocyclicRound::update_config() {
@@ -410,30 +461,52 @@ void OrthocyclicRound::update_config() {
         default:
             break;
     }
+    // Recomend better wire OD (actualy the turn step)
+    better_wire_od = (bob_len - wire_rad) / turns_per_row;
 
     // Compute the layers quantity by iteractyion
     auto turns = 0;
     auto layer = 1;
 
-    for ( ; layer<1000; layer++) {
-        turns_last = (layer&1) ? turns_odd : turns_even;
-        turns += turns_last;
-        if (turns >= wire_turns)
-            break;
-    }
-
-    layers = layer;
-
-    if (fill_last) {
-        // Make turns amout to fill the last layer
+    if (wire_layers > 0) {
+        // Make coil based on target layers
+        for ( ; layer<=wire_layers; layer++) {
+            turns_last = (layer&1) ? turns_odd : turns_even;
+            turns += turns_last;
+        }
+        total_turns = turns;
+        update_coil_od(layer);
+    } else if (bob_od > 0) {
+        // Make the coil based on target external diameter
+        auto max_od = bob_od - (2*wire_od*sin60);
+        for ( ; layer<=999; layer++) {
+            turns_last = (layer&1) ? turns_odd : turns_even;
+            turns += turns_last;
+            update_coil_od(layer);
+            if (coil_od_cross > max_od)
+                break;
+        }
         total_turns = turns;
     } else {
-        // Make exact amount of turns
-        auto overflow_turns = turns - wire_turns;
-        turns_last -= overflow_turns;
-        total_turns = turns - overflow_turns;
-    }
+        // Make coil based on the total amout of turns
+        for ( ; layer<=999; layer++) {
+            turns_last = (layer&1) ? turns_odd : turns_even;
+            turns += turns_last;
+            if (turns >= wire_turns)
+                break;
+        }
+        update_coil_od(layer);
 
+        if (fill_last) {
+            // Make turns amout to fill the last layer
+            total_turns = turns;
+        } else {
+            // Make exact amount of turns
+            auto overflow_turns = turns - wire_turns;
+            turns_last -= overflow_turns;
+            total_turns = turns - overflow_turns;
+        }
+    }
     {
         // The lenght of the coil is different from
         // amount of layers and the style of coil.
@@ -449,13 +522,8 @@ void OrthocyclicRound::update_config() {
                 winding_len += wire_rad;
         }
     }
-
-    // Calculation of the winding height in the layer cross
-    winding_h = wire_od * (1 + (sin60 * (layers - 1)));
-    // section area just add 5%
-    winding_h_cross = winding_h * 1.05;
-    coil_od = coil_id + (2 * winding_h);
-    coil_od_cross = coil_id + (2 * winding_h_cross);
+    // The air gap at the end
+    winding_gap = bob_len - winding_len;
     // Display result
     inspect();
 }
@@ -465,26 +533,26 @@ void OrthocyclicRound::update_config() {
  **/
 void OrthocyclicRound::inspect()
 {
+    RoundCoil::inspect();
+    printf("Orthocyclic coil:\n");
     // Print the arguments
-    printf("Inputs:\n");
-    printf("  Wire diameter   = %f mm\n", wire_od);
-    printf("  Wire turns      = %d\n", wire_turns);
-    printf("  Coil length     = %f mm\n", bob_len);
-    printf("  Coil int. diam  = %f mm\n", coil_id);
     printf("  Coil style      = %s\n", style_strings[(int)style]);
-    printf("  Coil fill last  = %d mm\n", fill_last);
+    printf("  Coil fill last  = %d\n", fill_last);
     // Computed parameters
-    printf("Computed:\n");
+    printf("Orthocyclic computed:\n");
+
+    printf("  Total Turns     = %d\n", total_turns);
+    printf("  Layers num      = %d\n", layers);
     printf("  Turns odd       = %d\n", turns_odd);
     printf("  Turns even      = %d\n", turns_even);
     printf("  Turns last      = %d\n", turns_last);
-    printf("  Total Turns     = %d\n", total_turns);
-    printf("  X-shift odd     = %f\n", xshift_odd);
-    printf("  X-shift even    = %f\n", xshift_even);
-    printf("  Layers num      = %d\n", layers);
-    printf("  Winding len     = %f mm\n", winding_len);
-    printf("  Winding H       = %f mm\n", winding_h);
-    printf("  Winding H cros s= %f mm\n", winding_h_cross);
-    printf("  Coil OD         = %f\n", coil_od);
-    printf("  Coil OD cross   = %f mm\n", coil_od_cross);
+    printf("  X-shift odd     = %.2f mm\n", xshift_odd);
+    printf("  X-shift even    = %.2f mm\n", xshift_even);
+    printf("  Winding len     = %.2f mm\n", winding_len);
+    printf("  Winding H       = %.2f mm\n", winding_h);
+    printf("  Winding H cross = %.2f mm\n", winding_h_cross);
+    printf("  Winding gap     = %.2f mm\n", winding_gap);
+    printf("  Better wire OD  = %.2f mm\n", better_wire_od);
+    printf("  Coil OD         = %.2f mm\n", coil_od);
+    printf("  Coil OD cross   = %.2f mm\n", coil_od_cross);
 }
