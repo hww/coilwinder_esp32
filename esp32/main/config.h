@@ -103,10 +103,11 @@ extern float g_speed;
 // Winding process
 // ==============================================================
 
-#define ACCELERATE_TURNS 5
-#define DECELERATE_TURNS 5
 #define STOP_BEFORE_TURNS 2
 /** For manual direction allow this extra turns */
 #define ALLOW_EXTRA_TURNS 10
+#define MINIMUM_SPEED_FACTOR 0.2
+#define INCREASE_SPEED_EACH_N_TURNS 2
+#define INCREASE_SPEED_STEP 0.2
 
 #endif // CONFIG_H_

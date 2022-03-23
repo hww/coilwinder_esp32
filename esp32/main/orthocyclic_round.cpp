@@ -24,19 +24,28 @@ OrthocyclicRound::OrthocyclicRound()
     , fill_last(true)
     , manual_direct(true)
     , num_csections(12)
-    , accelerate_turns(ACCELERATE_TURNS)
-    , deccelerate_turns(DECELERATE_TURNS)
     , stop_before(STOP_BEFORE_TURNS)
     , turns_odd(0)
     , turns_even(0)
     , turns_last(0)
     , total_turns(0)
-    , speed(50)
+    , feed_rate(50)
+    , feed_rate_norm(0)
 {
+    /*
+     * The coil for the plastic bobin the AR prototype 4
+     * wire_od = 0.45;
+     * bob_len = 23.9;
+     * bob_id = 24.0;
+     * bob_od = 33.7;
+     */
+
+
+
     wire_od = 0.45;
-    bob_len = 23.9;
+    bob_len = 24.9;
     bob_id = 24.0;
-    bob_od = 33.7;
+    bob_od = 33.0;
 }
 
 /** Update with fixed frequency */
@@ -57,13 +66,17 @@ void OrthocyclicRound::update()
                 MenuSystem::instance.set_visible(false);
             }
         } else {
-            if (one_turn_dir == 0)
+            if (one_turn_dir == 0 && !change_layer)
             {
                 if (!wind_extra_turns) {
                     // we do not winding extra turns then allow
                     // press and hold the button A
                     if (input_get_key(Button::A))
                         one_turn_dir = 1;
+
+                    if (input_get_key_down(Button::B))
+                        change_layer = true;
+
                 } else {
                     // We are winding extra turns, be more careful
                     // and allow only step by step mode
@@ -72,12 +85,17 @@ void OrthocyclicRound::update()
 
                     if (input_get_key_down(Button::B))
                         change_layer = true;
+
                 }
 
                 if (one_turn_dir == 0 && change_layer == false) {
                     one_turn_dir = input_get_delta_position();
                 }
+
             }
+            // go to minimum speed
+            if (one_turn_dir == 0 && !change_layer)
+                reset_feed_rate_norm();
         }
     } else {
         if (!MenuSystem::instance.is_edit) {
@@ -121,7 +139,7 @@ void OrthocyclicRound::on_update_style(StringItem* item, MenuEvent evt)
 
 void OrthocyclicRound::init_menu(std::string path)
 {
-    Coil::init_menu(path);
+    RoundCoil::init_menu(path);
 
     // Editable settings
     menu = MenuSystem::instance.get_or_create(path);
@@ -170,23 +188,6 @@ float OrthocyclicRound::get_crossover_norm(int layer) {
     return (float)get_crossover_section_num(layer) / (float)num_csections;
 }
 
-static float get_normalized_position(float v, float min, float max) {
-    return clamp01((v-min) / (max-min));
-}
-
-/**
- * Slow down ant the layer's enad and accelerate at begin
- **/
-unit_t OrthocyclicRound::get_velocity_factor(int layer_turn, int layer_turns) {
-    if (layer_turn<=accelerate_turns) {
-        return get_normalized_position(layer_turn, 0, (float)accelerate_turns);
-    } else if (layer_turn >= (layer_turns-deccelerate_turns+1)) {
-        return 1-get_normalized_position(layer_turn, (float)(layer_turns-deccelerate_turns+1), (float)layer_turns);
-    } else {
-        return (unit_t)1.0f;
-    }
-}
-
 
 static void display_status(int turn, int turns, int layer, int layers, float x, float rpm)
 {
@@ -210,6 +211,35 @@ static void display_message(const char* msg) {
     display_print(0,0, msg);
     display_update();
     ESP_LOGI(TAG, "MSG '%s'",msg);
+}
+
+static int feed_rate_cnt = 0;
+
+void OrthocyclicRound::reset_feed_rate_norm() {
+    feed_rate_cnt = 0;
+    feed_rate_norm = 0;
+    Kinematic::instance.set_speed(MINIMUM_SPEED_FACTOR,MINIMUM_SPEED_FACTOR);
+}
+
+void OrthocyclicRound::update_feed_rate_norm() {
+    feed_rate_cnt++;
+    if (feed_rate_cnt == INCREASE_SPEED_EACH_N_TURNS) {
+        feed_rate_cnt = 0;
+        feed_rate_norm = clamp01(feed_rate_norm + INCREASE_SPEED_STEP);
+    }
+}
+float OrthocyclicRound::get_max_feed_rate()
+{
+    return (float)feed_rate;
+}
+float OrthocyclicRound::get_min_feed_rate()
+{
+    return (float)feed_rate * (float)MINIMUM_SPEED_FACTOR;
+}
+
+float OrthocyclicRound::get_feed_rate()
+{
+    return lerp(feed_rate_norm, get_min_feed_rate(), get_max_feed_rate());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -248,10 +278,12 @@ void OrthocyclicRound::process()
     // Make current position as (0,0)
     Kinematic::instance.set_origin();
     Kinematic::instance.set_velocity(wire_od, crossover_size_norm());
+    reset_feed_rate_norm();
 
     // Set the global position x and truns counter 0
     auto posx = 0.0f;
     auto turn = 0;
+
     // The layer's turns iterator
     int layer_turn = 0;
 
@@ -302,8 +334,7 @@ void OrthocyclicRound::process()
                     turn++;
                     layer_turn++;
                     // Get velocity for current turn
-                    auto v = get_velocity_factor(layer_turn, layer_turns);
-                    auto rpm = lerp(v, ((float)speed)/2, (float)speed);
+                    auto rpm = get_feed_rate();
                     // Increment or decrement X position and remeber previous
                     auto oldx = posx;
                     posx += (direction ? wire_od : -wire_od);
@@ -333,8 +364,7 @@ void OrthocyclicRound::process()
                         layer_turn--;
                         turn--;
                         // Get the velocity
-                        auto v = get_velocity_factor(layer_turn, layer_turns);
-                        auto rpm = lerp(v, 20.0f, (float)speed/2);
+                        auto rpm = get_feed_rate();
 
                         // Increment or decrement X pposition
                         posx -= (direction ? wire_od : -wire_od);
@@ -370,6 +400,9 @@ void OrthocyclicRound::process()
 
                 //vTaskDelay(1/portTICK_PERIOD_MS);
             }
+
+            update_feed_rate_norm();
+
         } while (layer_turn<max_turns && !change_layer);
 
         ESP_LOGW(TAG, "Change the layer forward");
@@ -383,7 +416,8 @@ void OrthocyclicRound::process()
         posx -= (odd_layer ? xshift_odd : xshift_even);
 
     AFTER_CHANGE_LAYER:
-        Kinematic::instance.move_to(posx, turn, (float)speed/2);
+        reset_feed_rate_norm();
+        Kinematic::instance.move_to(posx, turn, get_feed_rate());
     }
 EXIT:
     printf("\nCOMPLETE %d LAYERS AND %d TURNS\n", layers, turn);

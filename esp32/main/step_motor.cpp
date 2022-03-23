@@ -101,7 +101,8 @@ void StepMotorAgent::stop() {
 /** The motor                                */
 /** ******************************************/
 
-StepMotor::StepMotor() {
+StepMotor::StepMotor()
+    : speed(1) {
 }
 
 /** The @arg points to motor_t structure */
@@ -250,7 +251,7 @@ bool StepMotor::verify_timer_interval(uint64_t &interval) {
 
 /** make current velocity ecual to desired velocity */
 void StepMotor::update_velocity(float time) {
-    float old_velocity = velocity;
+    float old_velocity = velocity * speed;
     // compute direction
     auto veldif = target_velocity - velocity;
     auto accdir = get_direction(veldif);
@@ -273,13 +274,14 @@ void StepMotor::update_velocity(float time) {
         }
     }
 
+    auto new_velocity = velocity * speed;
     // Restart the timer
-    if (velocity != old_velocity) {
+    if (new_velocity != old_velocity) {
 
-        if (velocity == 0) {
+        if (new_velocity == 0) {
             timer_interval_us = TIMER_IDLE_DELAY_US;
         } else {
-            float steps_per_sec = config->units_to_fsteps(abs(velocity));
+            float steps_per_sec = config->units_to_fsteps(abs(new_velocity));
             if (log > 3)
                 printf("[%d] steps-per-sec: %f\n", id, steps_per_sec);
             timer_interval_us = (uint64_t)(((double)1.0 / steps_per_sec) * 1000000);

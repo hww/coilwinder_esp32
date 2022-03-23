@@ -42,10 +42,6 @@ class OrthocyclicRound : public RoundCoil
         bool fill_last;
         bool manual_direct;
         int num_csections;
-        // Slow accelerate for this amount of turns
-        int accelerate_turns;
-        // Slow decelerate this amount of turns
-        int deccelerate_turns;
         // For manual direct stop befor end this amount of turns
         int stop_before;
 
@@ -69,15 +65,20 @@ private:
         float crossover_size_norm();
         int get_crossover_section_num(int layer);
         float get_crossover_norm(int layer);
-        unit_t get_velocity_factor(int layer_turn, int layer_turns);
         void update_coil_od(int layers);
+        void reset_feed_rate_norm();
+        void update_feed_rate_norm();
+        float get_max_feed_rate();
+        float get_min_feed_rate();
+        float get_feed_rate();
 
         /** Thread */
         TaskHandle_t winding_task_handle;
         bool wind_extra_turns;
         int one_turn_dir;
         bool change_layer;
-        int speed;
+        float feed_rate;
+        float feed_rate_norm;
 };
 
 

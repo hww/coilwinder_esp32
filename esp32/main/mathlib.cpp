@@ -31,3 +31,7 @@ float lerp(float v, float min, float max) {
 int clamp(int v, int min, int max) {
     return (v<min) ? min : (v>max ? max : v);
 }
+
+float get_normalized_position(float v, float min, float max) {
+    return clamp01((v-min) / (max-min));
+}

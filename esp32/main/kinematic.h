@@ -7,6 +7,7 @@
 #include "step_motor.h"
 #include "step_motor_config.h"
 #include "typeslib.h"
+#include "mathlib.h"
 
 class Kinematic {
         public:
@@ -22,6 +23,13 @@ class Kinematic {
                 void get_position(unit_t& x, unit_t& r);
                 void set_origin();
 
+                inline float get_speed() { return target_speed; }
+                inline void set_speed(float tgtv) { target_speed = tgtv; }
+                inline void set_speed(float tgtv, float curv) {
+                        curent_speed = clamp01(curv);
+                        target_speed = clamp01(tgtv);
+                }
+
                 StepMotor xmotor;
                 StepMotor rmotor;
                 StepMotorConfig xconfig;
@@ -31,6 +39,12 @@ class Kinematic {
                 float rvelocity_k;
                 int log;
                 static Kinematic instance;
+
+        private:
+                float curent_speed;
+                float target_speed;
+                float speed_acc;
+                Time time;
 };
 
 

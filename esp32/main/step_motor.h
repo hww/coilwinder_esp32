@@ -100,6 +100,7 @@ class StepMotor  {
     /** Control containes requested state */
     unit_t target_velocity;
     bool enabled;
+    float speed;
 
     /** Status display the actual state of motor */
     unit_t velocity;

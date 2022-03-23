@@ -1,7 +1,10 @@
+#include <assert.h>
+
 #include "esp_log.h"
 
 #include "config.h"
 #include "kinematic.h"
+#include "mathlib.h"
 #include "menu_export.h"
 #include "menu_item.h"
 #include "step_motor_config.h"
@@ -16,6 +19,9 @@ static bool motors_enabled;
 Kinematic::Kinematic()
     : rvelocity_k(0.7f)
     , log(0)
+    , curent_speed(1)
+    , target_speed(1)
+    , speed_acc(1)
 {
 }
 
@@ -78,12 +84,35 @@ void Kinematic::init()
     Kinematic::instance.rmotor.set_enable(motors_enabled);
 }
 
-
 void Kinematic::update(float time) {
+
+    static float old_time = 0;
+    auto dt = time - old_time;
+    old_time = time;
+
+    if (xmotor.is_moving() || rmotor.is_moving()) {
+        auto dif = target_speed-curent_speed;
+        // If the motors are works make
+        // interpolation of speed
+        if (dif != 0) {
+            auto dir = get_direction(dif);
+            auto spd = curent_speed + (dir * speed_acc * dt);
+            spd = clamp(spd, 0.0f, 1.0f);
+            if (curent_speed != spd) {
+                curent_speed = spd;
+                if (log>2)
+                    ESP_LOGI(TAG, "target_speed: %f curent_speed: %f spd_acc: %f", target_speed, curent_speed, speed_acc);
+            }
+        }
+    }
+
+    xmotor.speed = target_speed;
+    rmotor.speed = target_speed;
     xmotor.update(time);
     rmotor.update(time);
-    if (log>2) {
-        printf("movx:%d movr:%d vx:%f vr:%f px:%f pr:%f\n",
+
+    if (log>3) {
+        ESP_LOGI(TAG, "movx:%d movr:%d vx:%f vr:%f px:%f pr:%f",
                xmotor.is_moving(),
                rmotor.is_moving(),
                xmotor.get_velocity(),
@@ -156,9 +185,27 @@ void  Kinematic::move_to(unit_t tgtx, unit_t tgtr, percents_t rpm)
 {
     ESP_LOGI(TAG, "move_to X:%f R:%f F:%f", tgtx, tgtr, rpm);
 
-    auto vk = rpm/100.0f;
-    xmotor.move_to(tgtx,xvelocity*vk);
-    rmotor.move_to(tgtr,rvelocity*vk);
+    // set target speed
+    target_speed = clamp01(rpm/100.0f);
+    // estimate the speed's acceleration
+    auto oldr = rmotor.get_position();
+    auto oldx = xmotor.get_position();
+    auto difr = (tgtr-oldr);
+    auto difx = (tgtx-oldx);
+    auto est_durationr = difr / rvelocity;
+    auto est_durationx = difx / xvelocity;
+    auto max_dur = max(est_durationr, est_durationx);
+    if (max_dur != 0) {
+        auto vdif = abs(target_speed - curent_speed);
+        if (vdif > 0) {
+            speed_acc = abs(vdif / max_dur);
+            assert(speed_acc != 0);
+        }
+    }
+    // TODO! Fix code abowe
+//    speed_acc = 0.5;
+    xmotor.move_to(tgtx,xvelocity);
+    rmotor.move_to(tgtr,rvelocity);
 
     while (xmotor.is_moving() || rmotor.is_moving())
         vTaskDelay(1/portTICK_PERIOD_MS);
