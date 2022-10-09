@@ -2,8 +2,10 @@
 
 The coil winder based on esp32 and two step motors
 
-1. There is another project based on GRBLhttps://github.com/hww/coil_winder_grbl_esp32
+1. There is another project based on [GRBL](https://github.com/hww/coil_winder_grbl_esp32)
 2. This project does not require a computer to wind the coil and has more manual control over process.
+
+<img src="https://github.com/hww/coilwinder_esp32/blob/main/doc/coil_winder_photo_1.jpg" width="900">
 
 # Project roadmap
 
